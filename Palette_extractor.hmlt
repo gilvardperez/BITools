@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Power BI Palette Extractor v2 — by Gilvard Pérez</title>
+<style>
+:root{--p:#f2c811;--bg:#0f0f1a;--bg2:#141425;--card:#1c1c35;--cardh:#24243d;--t:#e8e8f0;--tm:#7a7a9a;--ab:#4fc3f7;--ag:#66bb6a;--ap:#ab47bc;--ar:#ef5350;--b:#2a2a4a;--r:12px;--f:'Segoe UI',sans-serif}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--f);background:var(--bg);color:var(--t);min-height:100vh}
+.header{background:linear-gradient(135deg,#1a1a30 0%,#0f0f1a 100%);border-bottom:3px solid var(--p);padding:14px 28px;display:flex;align-items:center;gap:14px;position:relative;z-index:10}
+.header svg.logo{width:36px;height:36px;flex-shrink:0}
+.header h1{font-size:1.3rem;color:var(--p);font-weight:700;white-space:nowrap}
+.header h1 span{color:var(--t);font-weight:300}
+.header-right{margin-left:auto;display:flex;align-items:center;gap:16px;flex-shrink:0}
+.credit{font-size:.78rem;color:var(--tm);white-space:nowrap}
+.credit b{color:var(--t);font-weight:600}
+.social-link{display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;background:var(--card);border:1px solid var(--b);transition:all .2s;text-decoration:none}
+.social-link:hover{border-color:var(--p);transform:translateY(-2px);box-shadow:0 4px 12px rgba(242,200,17,.15)}
+.social-link svg{width:18px;height:18px}
+.main{max-width:1600px;margin:0 auto;padding:20px;display:grid;grid-template-columns:340px 1fr;gap:20px;min-height:calc(100vh - 60px)}
+@media(max-width:1000px){.main{grid-template-columns:1fr;grid-template-rows:auto 1fr}}
+.left{display:flex;flex-direction:column;gap:14px}
+.upload-zone{border:2px dashed var(--b);border-radius:var(--r);padding:32px 16px;text-align:center;cursor:pointer;transition:all .3s;background:var(--card);position:relative;overflow:hidden}
+.upload-zone::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(242,200,17,.03),transparent);pointer-events:none}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--p);background:var(--cardh);transform:translateY(-2px)}
+.upload-zone .icon{font-size:2.5rem;margin-bottom:8px}
+.upload-zone h3{color:var(--p);font-size:.95rem;margin-bottom:4px}
+.upload-zone p{color:var(--tm);font-size:.8rem}
+#fileIn{display:none}
+.img-box{background:var(--card);border-radius:var(--r);border:1px solid var(--b);overflow:hidden;display:none}
+.img-box img{width:100%;display:block;max-height:200px;object-fit:contain;background:#0a0a15}
+.img-box canvas{display:none}
+.pal-box{background:var(--card);border-radius:var(--r);border:1px solid var(--b);padding:14px;display:none}
+.pal-box h3{font-size:.85rem;color:var(--p);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.pal-controls{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;align-items:center}
+.pal-controls label{font-size:.75rem;color:var(--tm);display:flex;align-items:center;gap:6px}
+.pal-controls select{background:var(--bg2);border:1px solid var(--b);color:var(--t);padding:4px 8px;border-radius:6px;font-size:.8rem;cursor:pointer}
+.filter-row{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.filter-btn{padding:4px 10px;border:1px solid var(--b);border-radius:5px;background:transparent;color:var(--tm);font-size:.7rem;cursor:pointer;transition:all .15s}
+.filter-btn:hover,.filter-btn.active{border-color:var(--p);color:var(--p);background:rgba(242,200,17,.08)}
+.swatch-list{display:flex;flex-direction:column;gap:6px}
+.swatch{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;border:1px solid var(--b);background:var(--bg2);cursor:pointer;transition:all .15s;position:relative}
+.swatch:hover{border-color:var(--p);background:var(--cardh)}
+.swatch.locked{border-color:var(--p);background:rgba(242,200,17,.06)}
+.swatch .dot{width:34px;height:34px;border-radius:7px;flex-shrink:0;border:2px solid rgba(255,255,255,.1);position:relative}
+.swatch .rank{position:absolute;top:-3px;left:-3px;width:16px;height:16px;border-radius:50%;background:var(--p);color:var(--bg);font-size:.6rem;font-weight:800;display:flex;align-items:center;justify-content:center}
+.swatch .info{flex:1;min-width:0}
+.swatch .hex{font-weight:700;font-size:.88rem;font-family:'Consolas',monospace}
+.swatch .meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:2px}
+.swatch .rgb{font-size:.68rem;color:var(--tm)}
+.swatch .hsl-info{font-size:.68rem;color:var(--ap)}
+.swatch .pct{font-size:.65rem;color:var(--ab);margin-top:1px}
+.swatch .harmony{font-size:.6rem;color:var(--ag);margin-top:1px}
+.swatch-actions{display:flex;gap:3px;flex-shrink:0}
+.swatch-actions button{padding:3px 6px;border:1px solid var(--b);border-radius:4px;background:transparent;color:var(--tm);font-size:.65rem;cursor:pointer}
+.swatch-actions button:hover{border-color:var(--p);color:var(--p)}
+.export-row{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.btn{padding:7px 14px;border:none;border-radius:6px;font-weight:600;cursor:pointer;font-size:.78rem;transition:all .2s}
+.btn:hover{transform:translateY(-1px);opacity:.9}
+.btn-json{background:var(--ag);color:white}
+.btn-copy{background:var(--ab);color:var(--bg)}
+.btn-theme{background:var(--ap);color:white}
+.btn-css{background:var(--ar);color:white}
+.btn-img{background:#e0a030;color:var(--bg)}
+.right{display:flex;flex-direction:column;gap:0;overflow:hidden}
+.dash-header{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:var(--card);border:1px solid var(--b);border-radius:var(--r) var(--r) 0 0;border-bottom:none;flex-wrap:wrap;gap:8px}
+.dash-header h2{font-size:.95rem;color:var(--p);font-weight:600;display:flex;align-items:center;gap:8px}
+.dash-header .dash-badge{font-size:.7rem;background:var(--p);color:var(--bg);padding:2px 8px;border-radius:4px;font-weight:700}
+.dash-controls{display:flex;gap:6px;align-items:center}
+.dash-controls label{font-size:.72rem;color:var(--tm)}
+.dash-controls select,.dash-controls input{background:var(--bg2);border:1px solid var(--b);color:var(--t);padding:4px 8px;border-radius:5px;font-size:.75rem}
+.dash-body{background:var(--card);border:1px solid var(--b);border-radius:0 0 var(--r) var(--r);padding:20px;flex:1;overflow-y:auto}
+.dash-page{min-height:400px;border-radius:8px;padding:20px;transition:background .3s}
+.dash-row{display:grid;gap:14px;margin-bottom:14px}
+.dash-row.r1{grid-template-columns:repeat(auto-fit,minmax(140px,1fr))}
+.dash-row.r2{grid-template-columns:3fr 2fr}
+.dash-row.r3{grid-template-columns:2fr 3fr}
+.dash-row.r4{grid-template-columns:1fr 1fr}
+.dash-row.r5{grid-template-columns:1fr}
+@media(max-width:800px){.dash-row.r2,.dash-row.r3,.dash-row.r4{grid-template-columns:1fr}}
+.vis{border-radius:8px;padding:14px;transition:all .3s;overflow:hidden}
+.vis-title{font-size:.78rem;font-weight:600;margin-bottom:10px;opacity:.85;display:flex;align-items:center;gap:6px}
+.kpi-val{font-size:1.8rem;font-weight:800;line-height:1}
+.kpi-label{font-size:.7rem;opacity:.65;margin-top:3px}
+.kpi-delta{font-size:.68rem;margin-top:5px;padding:2px 8px;border-radius:4px;display:inline-block;background:rgba(255,255,255,.15)}
+.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.bar-label{width:65px;font-size:.7rem;text-align:right;opacity:.6;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar-track{flex:1;height:22px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;display:flex;align-items:center;padding:0 8px;justify-content:flex-end;transition:width .6s ease}
+.bar-val{font-size:.65rem;font-weight:600;text-shadow:0 1px 2px rgba(0,0,0,.3)}
+.donut-wrap{display:flex;align-items:center;gap:24px;justify-content:center;flex-wrap:wrap}
+.donut-svg{width:160px;height:160px;flex-shrink:0}
+.donut-legend{display:flex;flex-direction:column;gap:5px}
+.dl-item{display:flex;align-items:center;gap:6px;font-size:.75rem}
+.dl-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+.dl-pct{color:var(--tm);font-size:.7rem;margin-left:auto;min-width:30px;text-align:right}
+.stacked-row{margin-bottom:10px}
+.stacked-label{font-size:.7rem;opacity:.6;margin-bottom:3px}
+.stacked-track{height:26px;border-radius:5px;overflow:hidden;display:flex}
+.stacked-seg{height:100%;display:flex;align-items:center;justify-content:center;transition:width .5s}
+.stacked-seg span{font-size:.6rem;font-weight:600;text-shadow:0 1px 2px rgba(0,0,0,.3)}
+.line-chart-box{position:relative;height:100px;margin-top:8px}
+.line-chart-box svg{width:100%;height:100%}
+.axis-labels{display:flex;justify-content:space-between;font-size:.6rem;opacity:.4;margin-top:3px}
+.pal-strip{display:flex;border-radius:6px;overflow:hidden;height:36px;margin-top:4px}
+.ps-seg{flex:1;display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;transition:all .3s;cursor:pointer}
+.ps-seg:hover{flex:1.5}
+.contrast-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:8px;margin-top:8px}
+.c-card{border-radius:6px;padding:10px;text-align:center}
+.c-card .c-w{font-size:.75rem;font-weight:700;color:white}
+.c-card .c-b{font-size:.75rem;font-weight:700;color:black;margin-top:4px}
+.c-card .c-r{font-size:.6rem;margin-top:3px;opacity:.8}
+.table-preview{width:100%;border-collapse:collapse;font-size:.72rem;margin-top:6px}
+.table-preview th{text-align:left;padding:6px 8px;font-weight:600;border-bottom:2px solid}
+.table-preview td{padding:5px 8px;border-bottom:1px solid}
+.empty-dash{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:400px;color:var(--tm);text-align:center;gap:10px}
+.empty-dash .e-icon{font-size:4rem;opacity:.3}
+.empty-dash h3{color:var(--p);font-size:1rem}
+.empty-dash p{font-size:.85rem;max-width:300px}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--ag);color:white;padding:10px 20px;border-radius:8px;font-weight:600;font-size:.85rem;opacity:0;transform:translateY(20px);transition:all .3s;z-index:999}
+.toast.show{opacity:1;transform:translateY(0)}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--b);border-radius:3px}
+</style>
+</head>
+<body>
+<div class="header">
+    <svg class="logo" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="7" fill="#f2c811"/><circle cx="12" cy="13" r="4.5" fill="#0f0f1a"/><circle cx="24" cy="13" r="4.5" fill="#0f0f1a"/><circle cx="18" cy="25" r="4.5" fill="#0f0f1a"/></svg>
+    <h1>Palette <span>Extractor v2</span></h1>
+    <div class="header-right">
+        <span class="credit">Designed By: <b>Gilvard Pérez</b></span>
+        <a class="social-link" href="https://www.linkedin.com/in/gilvardperez/" target="_blank" rel="noopener" title="LinkedIn"><svg viewBox="0 0 24 24" fill="#0A66C2"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
+        <a class="social-link" href="https://www.skool.com/club-power-bi-9524/about" target="_blank" rel="noopener" title="Skool — Club Power BI"><svg viewBox="0 0 24 24" fill="#5865F2"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg></a>
+    </div>
+</div>
+
+<div class="main">
+    <div class="left">
+        <div class="upload-zone" id="upZone">
+            <div class="icon">🎨</div>
+            <h3>Sube tu imagen</h3>
+            <p>Arrastra o haz clic · PNG, JPG, SVG, WEBP</p>
+            <input type="file" id="fileIn" accept="image/*">
+        </div>
+        <div class="img-box" id="imgBox">
+            <img id="imgPreview" alt="" crossorigin="anonymous">
+            <canvas id="canvas"></canvas>
+        </div>
+        <div class="pal-box" id="palBox">
+            <h3>🎯 Paleta Esencial</h3>
+            <div class="pal-controls">
+                <label>Colores: <select id="colorCount" onchange="reExtract()"><option value="3">3</option><option value="5" selected>5</option><option value="8">8</option><option value="10">10</option></select></label>
+                <label>Método: <select id="method" onchange="reExtract()"><option value="quantize">Cuantización</option><option value="kmeans">K-Means</option><option value="lab">LAB Perceptual</option></select></label>
+                <label>Orden: <select id="sortMode" onchange="reSort()"><option value="lum">Luminosidad</option><option value="pct">Dominancia</option><option value="hue">Tono (Hue)</option><option value="sat">Saturación</option></select></label>
+            </div>
+            <div class="filter-row">
+                <button class="filter-btn active" data-filter="all" onclick="setFilter('all',this)">Todos</button>
+                <button class="filter-btn" data-filter="vibrant" onclick="setFilter('vibrant',this)">Vibrantes</button>
+                <button class="filter-btn" data-filter="muted" onclick="setFilter('muted',this)">Apagados</button>
+                <button class="filter-btn" data-filter="dark" onclick="setFilter('dark',this)">Oscuros</button>
+                <button class="filter-btn" data-filter="light" onclick="setFilter('light',this)">Claros</button>
+            </div>
+            <div class="swatch-list" id="swatchList"></div>
+            <div class="export-row">
+                <button class="btn btn-json" onclick="exportJSON()">⬇️ JSON PBI</button>
+                <button class="btn btn-copy" onclick="copyHexList()">📋 HEX</button>
+                <button class="btn btn-theme" onclick="exportTheme()">🎨 Tema</button>
+                <button class="btn btn-css" onclick="copyCSSVars()">{ } CSS</button>
+                <button class="btn btn-img" onclick="exportPaletteImage()">🖼️ Imagen</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="right">
+        <div class="dash-header">
+            <h2>👁️ Dashboard Preview</h2>
+            <div class="dash-controls">
+                <label>Fondo: <select id="dashBg" onchange="renderDashboard()"><option value="#f4f4f8">Claro</option><option value="#1e1e2e">Oscuro</option><option value="#ffffff">Blanco</option><option value="#0f0f1a">Midnight</option></select></label>
+                <label>Visuales: <select id="visBgMode" onchange="renderDashboard()"><option value="#ffffff">Blanco</option><option value="#f8f8fc">Gris claro</option><option value="#1c1c35">Oscuro</option><option value="auto">Auto</option></select></label>
+            </div>
+            <span class="dash-badge">LIVE</span>
+        </div>
+        <div class="dash-body" id="dashBody">
+            <div class="empty-dash" id="emptyDash">
+                <div class="e-icon">📊</div>
+                <h3>Previsualización del Dashboard</h3>
+                <p>Sube una imagen para ver cómo lucirán tus colores en un dashboard completo de Power BI</p>
+            </div>
+            <div id="dashContent" style="display:none"></div>
+        </div>
+    </div>
+</div>
+<canvas id="exportCanvas" style="display:none"></canvas>
+<div class="toast" id="toast"></div>
+
+<script>
+let rawPalette=[];
+let palette=[];
+let imgLoaded=false;
+let currentFilter='all';
+let lockedColors=new Set();
+
+// ===== UPLOAD =====
+const upZone=document.getElementById('upZone'),fileIn=document.getElementById('fileIn');
+upZone.addEventListener('click',e=>{if(e.target!==fileIn)fileIn.click();});
+['dragenter','dragover','dragleave','drop'].forEach(ev=>{upZone.addEventListener(ev,e=>{e.preventDefault();e.stopPropagation();});document.body.addEventListener(ev,e=>{e.preventDefault();e.stopPropagation();});});
+upZone.addEventListener('dragenter',()=>upZone.classList.add('drag'));
+upZone.addEventListener('dragover',()=>upZone.classList.add('drag'));
+upZone.addEventListener('dragleave',e=>{if(!upZone.contains(e.relatedTarget))upZone.classList.remove('drag');});
+upZone.addEventListener('drop',e=>{upZone.classList.remove('drag');if(e.dataTransfer.files.length)loadImage(e.dataTransfer.files[0]);});
+fileIn.addEventListener('change',e=>{if(e.target.files.length)loadImage(e.target.files[0]);});
+
+function loadImage(file){
+    if(!file.type.startsWith('image/')){alert('Selecciona una imagen');return;}
+    const reader=new FileReader();
+    reader.onload=e=>{const img=document.getElementById('imgPreview');img.onload=()=>{imgLoaded=true;lockedColors.clear();extractColors();};img.src=e.target.result;document.getElementById('imgBox').style.display='block';};
+    reader.readAsDataURL(file);
+}
+function reExtract(){if(imgLoaded)extractColors();}
+
+// ===== COLOR MATH =====
+function rgb2hsl(r,g,b){r/=255;g/=255;b/=255;const mx=Math.max(r,g,b),mn=Math.min(r,g,b),l=(mx+mn)/2;let h=0,s=0;if(mx!==mn){const d=mx-mn;s=l>.5?d/(2-mx-mn):d/(mx+mn);switch(mx){case r:h=((g-b)/d+(g<b?6:0))/6;break;case g:h=((b-r)/d+2)/6;break;case b:h=((r-g)/d+4)/6;break;}}return[Math.round(h*360),Math.round(s*100),Math.round(l*100)];}
+
+function rgb2lab(r,g,b){
+    let rr=r/255,gg=g/255,bb=b/255;
+    rr=rr>.04045?Math.pow((rr+.055)/1.055,2.4):rr/12.92;
+    gg=gg>.04045?Math.pow((gg+.055)/1.055,2.4):gg/12.92;
+    bb=bb>.04045?Math.pow((bb+.055)/1.055,2.4):bb/12.92;
+    let x=(rr*.4124564+gg*.3575761+bb*.1804375)/.95047;
+    let y=rr*.2126729+gg*.7151522+bb*.0721750;
+    let z=(rr*.0193339+gg*.1191920+bb*.9503041)/1.08883;
+    x=x>.008856?Math.pow(x,1/3):7.787*x+16/116;
+    y=y>.008856?Math.pow(y,1/3):7.787*y+16/116;
+    z=z>.008856?Math.pow(z,1/3):7.787*z+16/116;
+    return[116*y-16,500*(x-y),200*(y-z)];
+}
+
+function labDist(a,b){return Math.sqrt((a[0]-b[0])**2+(a[1]-b[1])**2+(a[2]-b[2])**2);}
+
+// ===== EXTRACTION =====
+function extractColors(){
+    const img=document.getElementById('imgPreview'),canvas=document.getElementById('canvas'),ctx=canvas.getContext('2d',{willReadFrequently:true});
+    const maxDim=200;
+    const s=Math.min(maxDim/img.naturalWidth,maxDim/img.naturalHeight,1);
+    canvas.width=Math.round(img.naturalWidth*s);canvas.height=Math.round(img.naturalHeight*s);
+    ctx.drawImage(img,0,0,canvas.width,canvas.height);
+    const data=ctx.getImageData(0,0,canvas.width,canvas.height).data;
+    const pixels=[];
+    for(let i=0;i<data.length;i+=4){
+        if(data[i+3]<128)continue;
+        const r=data[i],g=data[i+1],b=data[i+2];
+        // Filtrar píxeles casi blancos/negros
+        const hsl=rgb2hsl(r,g,b);
+        if(hsl[2]>97||hsl[2]<3)continue;
+        pixels.push([r,g,b]);
+    }
+    const count=parseInt(document.getElementById('colorCount').value);
+    const method=document.getElementById('method').value;
+    if(method==='lab') rawPalette=labKMeans(pixels,count);
+    else if(method==='kmeans') rawPalette=kMeans(pixels,count);
+    else rawPalette=medianCut(pixels,count);
+
+    // Enrich with HSL
+    rawPalette.forEach(p=>{
+        p.hsl=rgb2hsl(...p.color);
+        p.lab=rgb2lab(...p.color);
+        p.category=categorize(p.hsl);
+    });
+
+    applyFilterAndSort();
+}
+
+function categorize(hsl){
+    if(hsl[1]<15) return hsl[2]>60?'light':'dark';
+    if(hsl[2]>75) return 'light';
+    if(hsl[2]<30) return 'dark';
+    if(hsl[1]>50) return 'vibrant';
+    return 'muted';
+}
+
+function setFilter(f,btn){
+    currentFilter=f;
+    document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    applyFilterAndSort();
+}
+
+function reSort(){applyFilterAndSort();}
+
+function applyFilterAndSort(){
+    let filtered=currentFilter==='all'?[...rawPalette]:rawPalette.filter(p=>p.category===currentFilter);
+    if(!filtered.length)filtered=[...rawPalette];
+    const mode=document.getElementById('sortMode').value;
+    if(mode==='lum') filtered.sort((a,b)=>lum(a)-lum(b));
+    else if(mode==='pct') filtered.sort((a,b)=>b.pct-a.pct);
+    else if(mode==='hue') filtered.sort((a,b)=>a.hsl[0]-b.hsl[0]);
+    else if(mode==='sat') filtered.sort((a,b)=>b.hsl[1]-a.hsl[1]);
+    palette=filtered;
+    renderAll();
+}
+
+// ===== MEDIAN CUT =====
+function medianCut(pixels,n){
+    if(!pixels.length)return[{color:[128,128,128],pct:100}];
+    let buckets=[pixels];
+    while(buckets.length<n*3){
+        let nb=[];
+        for(const b of buckets){
+            if(b.length<2){nb.push(b);continue;}
+            const ranges=[0,1,2].map(ch=>{let mn=255,mx=0;b.forEach(p=>{if(p[ch]<mn)mn=p[ch];if(p[ch]>mx)mx=p[ch];});return mx-mn;});
+            const ch=ranges.indexOf(Math.max(...ranges));
+            b.sort((a,c)=>a[ch]-c[ch]);
+            const mid=b.length>>1;
+            nb.push(b.slice(0,mid),b.slice(mid));
+        }
+        buckets=nb;if(buckets.length>=n*3)break;
+    }
+    let result=buckets.map(b=>({color:b.length?[0,1,2].map(ch=>Math.round(b.reduce((s,p)=>s+p[ch],0)/b.length)):[128,128,128],count:b.length}));
+    result=mergeSimilar(result,25);result.sort((a,b)=>b.count-a.count);result=result.slice(0,n);
+    const total=result.reduce((s,r)=>s+r.count,0);
+    return result.map(r=>({color:r.color,pct:Math.round(r.count/total*100)}));
+}
+
+function mergeSimilar(list,th){
+    const merged=[],used=new Set();
+    for(let i=0;i<list.length;i++){
+        if(used.has(i))continue;let c=[...list[i].color],cnt=list[i].count;
+        for(let j=i+1;j<list.length;j++){
+            if(used.has(j))continue;
+            if(labDist(rgb2lab(...list[i].color),rgb2lab(...list[j].color))<th){
+                c=c.map((v,k)=>Math.round((v*cnt+list[j].color[k]*list[j].count)/(cnt+list[j].count)));
+                cnt+=list[j].count;used.add(j);
+            }
+        }
+        merged.push({color:c,count:cnt});
+    }return merged;
+}
+
+// ===== K-MEANS RGB =====
+function kMeans(pixels,k){
+    if(!pixels.length)return[{color:[128,128,128],pct:100}];
+    let centroids=[pixels[Math.floor(Math.random()*pixels.length)]];
+    while(centroids.length<k){const dists=pixels.map(p=>Math.min(...centroids.map(c=>cDist(p,c))));const total=dists.reduce((a,b)=>a+b,0);let r=Math.random()*total,acc=0;for(let i=0;i<pixels.length;i++){acc+=dists[i];if(acc>=r){centroids.push([...pixels[i]]);break;}}}
+    for(let iter=0;iter<20;iter++){
+        const clusters=Array.from({length:k},()=>[]);
+        pixels.forEach(p=>{let mD=1e9,mI=0;centroids.forEach((c,i)=>{const d=cDist(p,c);if(d<mD){mD=d;mI=i;}});clusters[mI].push(p);});
+        let moved=false;
+        clusters.forEach((cl,i)=>{if(!cl.length)return;const nc=[0,1,2].map(ch=>Math.round(cl.reduce((s,p)=>s+p[ch],0)/cl.length));if(cDist(nc,centroids[i])>1)moved=true;centroids[i]=nc;});
+        if(!moved)break;
+    }
+    const counts=new Array(k).fill(0);
+    pixels.forEach(p=>{let mD=1e9,mI=0;centroids.forEach((c,i)=>{const d=cDist(p,c);if(d<mD){mD=d;mI=i;}});counts[mI]++;});
+    const total=counts.reduce((a,b)=>a+b,0);
+    let result=centroids.map((c,i)=>({color:c,pct:Math.round(counts[i]/total*100)})).filter(r=>r.pct>0);
+    result.sort((a,b)=>b.pct-a.pct);return result.slice(0,k);
+}
+
+// ===== K-MEANS LAB (Perceptual) =====
+function labKMeans(pixels,k){
+    if(!pixels.length)return[{color:[128,128,128],pct:100}];
+    const labPixels=pixels.map(p=>({rgb:p,lab:rgb2lab(...p)}));
+    // k-means++ init
+    let centers=[labPixels[Math.floor(Math.random()*labPixels.length)].lab];
+    while(centers.length<k){
+        const dists=labPixels.map(p=>Math.min(...centers.map(c=>labDist(p.lab,c))));
+        const total=dists.reduce((a,b)=>a+b,0);
+        let r=Math.random()*total,acc=0;
+        for(let i=0;i<labPixels.length;i++){acc+=dists[i];if(acc>=r){centers.push([...labPixels[i].lab]);break;}}
+    }
+    for(let iter=0;iter<20;iter++){
+        const clusters=Array.from({length:k},()=>[]);
+        labPixels.forEach(p=>{let mD=1e9,mI=0;centers.forEach((c,i)=>{const d=labDist(p.lab,c);if(d<mD){mD=d;mI=i;}});clusters[mI].push(p);});
+        let moved=false;
+        clusters.forEach((cl,i)=>{if(!cl.length)return;const nc=[0,1,2].map(ch=>cl.reduce((s,p)=>s+p.lab[ch],0)/cl.length);if(labDist(nc,centers[i])>.5)moved=true;centers[i]=nc;});
+        if(!moved)break;
+    }
+    // Get average RGB per cluster
+    const clusterData=Array.from({length:k},()=>({rgb:[0,0,0],count:0}));
+    labPixels.forEach(p=>{let mD=1e9,mI=0;centers.forEach((c,i)=>{const d=labDist(p.lab,c);if(d<mD){mD=d;mI=i;}});clusterData[mI].rgb=clusterData[mI].rgb.map((v,ch)=>v+p.rgb[ch]);clusterData[mI].count++;});
+    const total=labPixels.length;
+    let result=clusterData.filter(c=>c.count>0).map(c=>({color:c.rgb.map(v=>Math.round(v/c.count)),pct:Math.round(c.count/total*100)}));
+    result.sort((a,b)=>b.pct-a.pct);
+    return result.slice(0,k);
+}
+
+function cDist(a,b){return Math.sqrt((a[0]-b[0])**2+(a[1]-b[1])**2+(a[2]-b[2])**2);}
+function lum(c){return .299*c.color[0]+.587*c.color[1]+.114*c.color[2];}
+function toHex(c){return'#'+c.map(v=>Math.max(0,Math.min(255,v)).toString(16).padStart(2,'0')).join('');}
+function relLum(rgb){const[r,g,b]=rgb.map(v=>{v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4);});return .2126*r+.7152*g+.0722*b;}
+function contrast(fg,bg){const l1=relLum(fg),l2=relLum(bg);return(Math.max(l1,l2)+.05)/(Math.min(l1,l2)+.05);}
+function bestTC(bg){return contrast([255,255,255],bg)>contrast([0,0,0],bg)?'#fff':'#000';}
+
+// ===== RENDER =====
+function renderAll(){renderSwatches();renderDashboard();document.getElementById('palBox').style.display='block';document.getElementById('emptyDash').style.display='none';document.getElementById('dashContent').style.display='block';}
+
+function renderSwatches(){
+    document.getElementById('swatchList').innerHTML=palette.map((p,i)=>{
+        const hex=toHex(p.color);
+        const hsl=p.hsl||rgb2hsl(...p.color);
+        const locked=lockedColors.has(hex);
+        return`<div class="swatch${locked?' locked':''}" onclick="clipH('${hex}')">
+            <div class="dot" style="background:${hex}"><span class="rank">${i+1}</span></div>
+            <div class="info">
+                <div class="hex">${hex.toUpperCase()}</div>
+                <div class="meta"><span class="rgb">RGB(${p.color.join(',')})</span><span class="hsl-info">HSL(${hsl[0]}°,${hsl[1]}%,${hsl[2]}%)</span></div>
+                <div class="pct">■ ${p.pct}% · ${p.category||''}</div>
+            </div>
+            <div class="swatch-actions">
+                <button onclick="event.stopPropagation();toggleLock('${hex}')" title="Fijar">${locked?'🔒':'🔓'}</button>
+                <button onclick="event.stopPropagation();clipH('${hex}')" title="Copiar">📋</button>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function toggleLock(hex){if(lockedColors.has(hex))lockedColors.delete(hex);else lockedColors.add(hex);renderSwatches();}
+
+// ===== DASHBOARD =====
+function renderDashboard(){
+    const C=palette,n=C.length;if(!n)return;
+    const pageBg=document.getElementById('dashBg').value;
+    const visBgMode=document.getElementById('visBgMode').value;
+    const isDark=pageBg==='#1e1e2e'||pageBg==='#0f0f1a';
+    const visBg=visBgMode==='auto'?(isDark?'#1c1c35':'#ffffff'):visBgMode;
+    const fg=isDark?'#e0e0e0':'#252423';
+    const gridC=isDark?'#3a3a5a':'#e0e0e0';
+    const cellAlt=isDark?'rgba(255,255,255,.03)':'rgba(0,0,0,.02)';
+    const vis=`background:${visBg};border-radius:10px;padding:14px;box-shadow:0 1px 4px ${isDark?'rgba(0,0,0,.3)':'rgba(0,0,0,.06)'};border:1px solid ${isDark?'#2a2a4a':'#e8e8ec'};`;
+
+    const kpiData=[{l:'Ventas Totales',v:'$3.6M',d:'+8.2%'},{l:'Utilidad',v:'$820K',d:'+12.5%'},{l:'Margen',v:'23%',d:'+2.1%'},{l:'Clientes',v:'1,205',d:'+6.7%'},{l:'Crecimiento',v:'+15.3%',d:'+3.4%'}];
+    const barData=[{l:'Electrónica',v:'$492K',w:92},{l:'Ropa',v:'$389K',w:73},{l:'Alimentos',v:'$345K',w:65},{l:'Hogar',v:'$278K',w:52},{l:'Deportes',v:'$215K',w:40}];
+    const donutData=[{l:'Norte',p:35},{l:'Sur',p:25},{l:'Este',p:20},{l:'Oeste',p:12},{l:'Centro',p:8}];
+    const stackedData=[{l:'Q1',s:[35,25,20,12,8]},{l:'Q2',s:[28,30,18,14,10]},{l:'Q3',s:[32,22,25,11,10]},{l:'Q4',s:[40,18,17,15,10]}];
+    const line1=[60,50,35,40,25,30,20,15,22,10,18],line2=[70,65,55,60,45,50,42,38,44,30,35];
+    const months=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov'];
+
+    let h=`<div class="dash-page" style="background:${pageBg};color:${fg}">`;
+
+    // KPIs
+    h+=`<div class="dash-row r1">${kpiData.slice(0,Math.min(n,5)).map((k,i)=>{const hex=toHex(C[i%n].color),tc=bestTC(C[i%n].color);return`<div class="vis" style="background:${hex}"><div class="kpi-val" style="color:${tc}">${k.v}</div><div class="kpi-label" style="color:${tc}">${k.l}</div><div class="kpi-delta" style="color:${tc}">${k.d}</div></div>`;}).join('')}</div>`;
+
+    // Bars + Donut
+    h+=`<div class="dash-row r2"><div class="vis" style="${vis}"><div class="vis-title" style="color:${fg}">📊 Ventas por Categoría</div>`;
+    h+=barData.slice(0,Math.min(n,5)).map((b,i)=>`<div class="bar-row"><div class="bar-label" style="color:${fg}">${b.l}</div><div class="bar-track" style="background:${isDark?'rgba(255,255,255,.06)':'rgba(0,0,0,.04)'}"><div class="bar-fill" style="width:${b.w}%;background:${toHex(C[i%n].color)}"><span class="bar-val" style="color:${bestTC(C[i%n].color)}">${b.v}</span></div></div></div>`).join('');
+    h+=`</div>`;
+
+    const totalP=donutData.slice(0,n).reduce((s,d)=>s+d.p,0);let off=0;const circ=2*Math.PI*60;
+    const arcs=donutData.slice(0,Math.min(n,5)).map((d,i)=>{const pct=d.p/totalP,dash=circ*pct,gap=circ-dash;const a=`<circle cx="85" cy="85" r="60" fill="none" stroke="${toHex(C[i%n].color)}" stroke-width="28" stroke-dasharray="${dash} ${gap}" stroke-dashoffset="${-off}"/>`;off+=dash;return a;});
+    const leg=donutData.slice(0,Math.min(n,5)).map((d,i)=>`<div class="dl-item"><div class="dl-dot" style="background:${toHex(C[i%n].color)}"></div><span style="color:${fg}">${d.l}</span><span class="dl-pct">${d.p}%</span></div>`).join('');
+    h+=`<div class="vis" style="${vis}"><div class="vis-title" style="color:${fg}">🍩 Distribución Regional</div><div class="donut-wrap"><svg class="donut-svg" viewBox="0 0 170 170">${arcs.join('')}<circle cx="85" cy="85" r="46" fill="${visBg}"/><text x="85" y="82" text-anchor="middle" fill="${fg}" font-size="14" font-weight="700">$3.6M</text><text x="85" y="96" text-anchor="middle" fill="${fg}" font-size="8" opacity=".5">Total</text></svg><div class="donut-legend">${leg}</div></div></div></div>`;
+
+    // Stacked + Line
+    h+=`<div class="dash-row r3"><div class="vis" style="${vis}"><div class="vis-title" style="color:${fg}">📊 Composición Trimestral</div>`;
+    h+=stackedData.map(row=>{const segs=row.s.slice(0,n),segT=segs.reduce((a,b)=>a+b,0);return`<div class="stacked-row"><div class="stacked-label" style="color:${fg}">${row.l}</div><div class="stacked-track">${segs.map((s,i)=>{const w=Math.round(s/segT*100);return w<3?'':`<div class="stacked-seg" style="width:${w}%;background:${toHex(C[i%n].color)}"><span style="color:${bestTC(C[i%n].color)}">${w}%</span></div>`;}).join('')}</div></div>`;}).join('');
+    h+=`</div>`;
+
+    h+=`<div class="vis" style="${vis}"><div class="vis-title" style="color:${fg}">📈 Tendencia Mensual</div>`;
+    h+=`<div style="display:flex;gap:12px;margin-bottom:6px;font-size:.7rem">${['2024','2025'].map((l,i)=>`<div style="display:flex;align-items:center;gap:4px"><div style="width:10px;height:3px;border-radius:2px;background:${toHex(C[i%n].color)}"></div><span style="color:${fg};opacity:.6">${l}</span></div>`).join('')}</div>`;
+    h+=`<div class="line-chart-box"><svg viewBox="0 0 300 80" preserveAspectRatio="none"><line x1="0" y1="20" x2="300" y2="20" stroke="${gridC}" stroke-width=".3"/><line x1="0" y1="40" x2="300" y2="40" stroke="${gridC}" stroke-width=".3"/><line x1="0" y1="60" x2="300" y2="60" stroke="${gridC}" stroke-width=".3"/>`;
+    h+=`<polyline points="${line1.map((y,i)=>`${i*30},${y}`).join(' ')}" fill="none" stroke="${toHex(C[0].color)}" stroke-width="2.5" stroke-linejoin="round"/>`;
+    if(n>1)h+=`<polyline points="${line2.map((y,i)=>`${i*30},${y}`).join(' ')}" fill="none" stroke="${toHex(C[1].color)}" stroke-width="2.5" stroke-linejoin="round" stroke-dasharray="4,3"/>`;
+    h+=`</svg></div><div class="axis-labels" style="color:${fg}">${months.map(m=>`<span>${m}</span>`).join('')}</div></div></div>`;
+
+    // Table + Palette
+    h+=`<div class="dash-row r4">`;
+    // Table
+    h+=`<div class="vis" style="${vis}"><div class="vis-title" style="color:${fg}">📋 Detalle</div><table class="table-preview"><thead><tr>${['Producto','Región','Ventas','Margen'].map(t=>`<th style="background:${toHex(C[0].color)};color:${bestTC(C[0].color)};border-color:${toHex(C[0].color)}">${t}</th>`).join('')}</tr></thead><tbody>${[['Laptop Pro','Norte','$245K','32%'],['Monitor','Sur','$182K','28%'],['Teclado','Este','$95K','45%'],['Mouse','Oeste','$67K','52%']].map((r,i)=>`<tr style="background:${i%2?cellAlt:'transparent'}">${r.map(c=>`<td style="color:${fg};border-color:${gridC}">${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+
+    // Palette & Contrast
+    h+=`<div class="vis" style="${vis}"><div class="vis-title" style="color:${fg}">🎨 Paleta & Contraste</div>`;
+    h+=`<div class="pal-strip">${C.map(p=>`<div class="ps-seg" style="background:${toHex(p.color)};color:${bestTC(p.color)}">${toHex(p.color).toUpperCase()}</div>`).join('')}</div>`;
+    h+=`<div class="contrast-row">${C.map(p=>{const hex=toHex(p.color),wR=contrast([255,255,255],p.color).toFixed(1),bR=contrast([0,0,0],p.color).toFixed(1);return`<div class="c-card" style="background:${hex}"><div class="c-w">Aa</div><div class="c-b">Aa</div><div class="c-r" style="color:${bestTC(p.color)}">${wR}:1 / ${bR}:1</div></div>`;}).join('')}</div>`;
+    h+=`</div></div>`;
+
+    h+=`</div>`;
+    document.getElementById('dashContent').innerHTML=h;
+}
+
+// ===== EXPORTS =====
+function exportJSON(){dl(JSON.stringify({name:"Palette Extraída",dataColors:palette.map(p=>toHex(p.color))},null,2),'powerbi_palette.json','application/json');}
+function exportTheme(){
+    const c=palette.map(p=>toHex(p.color));const solid=h=>({solid:{color:h}});
+    const theme={name:"Tema desde Imagen",dataColors:c,background:"#FFFFFF",foreground:c[0]||"#252423",tableAccent:c[0]||"#118DFF",
+        visualStyles:{"*":{"*":{title:[{fontColor:solid(c[0]||"#252423")}],legend:[{labelColor:solid(c[0]||"#605E5C")}],categoryAxis:[{labelColor:solid(c[0]||"#605E5C")}],valueAxis:[{labelColor:solid(c[0]||"#605E5C")}]}},
+        card:{"*":{labels:[{color:solid(c[0]||"#118DFF")}],categoryLabels:[{color:solid(c[1]||"#605E5C")}]}},
+        tableEx:{"*":{columnHeaders:[{fontColor:solid("#FFFFFF"),backColor:solid(c[0]||"#118DFF")}]}},
+        slicer:{"*":{header:[{fontColor:solid(c[0]||"#252423")}]}}}};
+    dl(JSON.stringify(theme,null,2),'powerbi_theme.json','application/json');
+}
+function copyHexList(){clip(palette.map(p=>toHex(p.color).toUpperCase()).join(', '));}
+function copyCSSVars(){clip(`:root {\n${palette.map((p,i)=>`  --color-${i+1}: ${toHex(p.color)};`).join('\n')}\n}`);}
+
+function exportPaletteImage(){
+    const cv=document.getElementById('exportCanvas'),ctx=cv.getContext('2d');
+    const n=palette.length,w=120*n,h2=180;cv.width=w;cv.height=h2;
+    palette.forEach((p,i)=>{
+        const hex=toHex(p.color);
+        ctx.fillStyle=hex;ctx.fillRect(i*120,0,120,h2);
+        ctx.fillStyle=bestTC(p.color);ctx.font='bold 14px Consolas';ctx.textAlign='center';
+        ctx.fillText(hex.toUpperCase(),i*120+60,90);
+        ctx.font='11px Segoe UI';ctx.fillText(`${p.pct}%`,i*120+60,110);
+        if(p.hsl)ctx.fillText(`H:${p.hsl[0]}° S:${p.hsl[1]}%`,i*120+60,128);
+    });
+    const a=document.createElement('a');a.href=cv.toDataURL('image/png');a.download='palette.png';a.click();
+}
+
+function clipH(hex){clip(hex.toUpperCase());}
+function clip(text){navigator.clipboard.writeText(text).then(()=>{const t=document.getElementById('toast');t.textContent='✅ Copiado: '+(text.length>50?text.substring(0,50)+'...':text);t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);});}
+function dl(c,n,m){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([c],{type:m}));a.download=n;a.click();}
+</script>
+</body>
+</html>
