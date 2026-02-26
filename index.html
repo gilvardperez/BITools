@@ -10,7 +10,7 @@
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:var(--f);background:var(--l);color:var(--t);min-height:100vh;display:flex;flex-direction:column}
 
-/* HEADER (kept identical early block, .lm background changed to grey) */
+/* Header (preserved style) */
 .hd{background:var(--b);padding:0 24px;height:54px;display:flex;align-items:center;gap:12px;position:relative;flex-shrink:0}
 .hd::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--p)}
 .hd .lm{width:34px;height:34px;background:#9aa0a6;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px}
@@ -24,9 +24,8 @@ body{font-family:var(--f);background:var(--l);color:var(--t);min-height:100vh;di
 .hd a.sl.with-text{padding:0 10px;gap:5px;font-size:.68rem;font-weight:600;color:var(--p)}
 .hd a.sl.with-text span{white-space:nowrap}
 
-/* LAYOUT */
-.main{flex:1;max-width:1100px;width:100%;margin:0 auto;padding:24px;display:flex;flex-direction:column;gap:16px;overflow-y:auto}
-
+/* Layout */
+.main{flex:1;max-width:1200px;width:100%;margin:0 auto;padding:24px;display:flex;flex-direction:column;gap:16px;overflow-y:auto}
 .filter-bar{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .fpill{padding:4px 10px;border:1.5px solid var(--ld);border-radius:14px;background:var(--ll);color:var(--tf);font-size:.7rem;font-weight:600;cursor:pointer;font-family:var(--f)}
 .fpill.a{background:var(--b);border-color:var(--b);color:var(--p)}
@@ -42,13 +41,12 @@ body{font-family:var(--f);background:var(--l);color:var(--t);min-height:100vh;di
 .img-info .img-desc{font-size:.86rem;color:var(--tf);line-height:1.2}
 .img-actions{display:flex;gap:8px;padding:10px;border-top:1px solid var(--ld);background:transparent;justify-content:flex-start}
 
-/* Improved "Abrir" button style */
+/* Improved "Abrir" button */
 .btn{padding:8px 12px;border:1.5px solid var(--ld);border-radius:8px;background:#fff;color:var(--t);font-size:.86rem;font-weight:700;cursor:pointer;font-family:var(--f);display:inline-flex;align-items:center;gap:8px;transition:all .12s}
 .btn:hover{border-color:var(--p);color:var(--b)}
 .btn.pbi{background:linear-gradient(180deg,var(--p),var(--pd));border:none;color:var(--b);font-weight:800;box-shadow:0 6px 18px rgba(242,200,17,.12)}
 .btn.pbi:hover{transform:translateY(-2px)}
 
-/* modal */
 .lightbox{display:none;position:fixed;inset:0;background:rgba(2,4,66,.85);z-index:1000;align-items:center;justify-content:center;flex-direction:column;gap:12px;padding:20px}
 .lightbox.show{display:flex}
 .lightbox .modal{background:#fff;border-radius:10px;padding:18px;max-width:760px;width:100%;color:var(--t);position:relative}
@@ -58,8 +56,6 @@ body{font-family:var(--f);background:var(--l);color:var(--t);min-height:100vh;di
 .toast{position:fixed;bottom:18px;right:18px;background:var(--b);color:var(--p);padding:9px 20px;border-radius:8px;font-weight:700;font-size:.82rem;opacity:0;transform:translateY(14px);transition:all .3s;z-index:1001;box-shadow:0 3px 12px rgba(2,4,66,.3);border:1px solid rgba(242,200,17,.2)}
 .toast.show{opacity:1;transform:translateY(0)}
 
-.code-box{background:#0e1530;color:#e6eaf6;border-radius:8px;padding:12px;font-family:var(--m);font-size:.85rem;overflow:auto;min-height:120px}
-.small{font-size:.78rem;color:var(--tf)}
 .empty-state{display:block;text-align:center;padding:40px;color:var(--tf)}
 .empty-state .es-icon{font-size:3rem;opacity:.3;margin-bottom:8px}
 
@@ -68,7 +64,7 @@ body{font-family:var(--f);background:var(--l);color:var(--t);min-height:100vh;di
 </head>
 <body>
 
-<!-- HEADER -->
+<!-- Encabezado (exacto) -->
 <div class="hd">
   <div class="lm" aria-hidden>🧰</div>
   <h1><b>BITools</b> — Repositorio de herramientas para desarrolladores BI</h1>
@@ -81,17 +77,14 @@ body{font-family:var(--f);background:var(--l);color:var(--t);min-height:100vh;di
       <svg viewBox="0 0 24 24" width="14" height="14" fill="var(--p)" aria-hidden><rect width="24" height="24" rx="4"/></svg>
       <span>Comunidad gratuita en Skool</span>
     </a>
-
-    <span id="visitBadge" class="small" aria-live="polite" style="background:rgba(255,255,255,0.06);padding:6px 10px;border-radius:8px;color:#fff">Visitas: —</span>
   </div>
 </div>
 
-<!-- MAIN -->
 <main class="main" role="main">
-  <div class="filter-bar" id="filterBar" style="margin-bottom:6px">
-    <label style="font-weight:700">Filtrar:</label>
-    <div id="filterPills" style="display:flex;gap:8px;margin-left:8px"></div>
-    <input class="search-sm" id="searchInput" placeholder="🔍 Buscar por nombre o URL..." />
+  <div class="filter-bar" id="filterBar">
+    <label>Filtrar:</label>
+    <div id="filterPills"></div>
+    <input id="searchInput" class="search-sm" placeholder="🔍 Buscar por nombre o URL..." />
   </div>
 
   <div id="toolsGrid" class="img-grid" aria-live="polite"></div>
@@ -102,19 +95,21 @@ body{font-family:var(--f);background:var(--l);color:var(--t);min-height:100vh;di
   </div>
 </main>
 
-<!-- Modal (only safe actions) -->
+<!-- Modal (safe actions only) -->
 <div class="lightbox" id="modal" onclick="if(event.target===this) closeModal()">
   <div class="modal" id="modalContent">
-    <button class="lb-close" onclick="closeModal()" title="Cerrar">✕</button>
+    <button class="lb-close" onclick="closeModal()">✕</button>
     <div id="modalBody"></div>
   </div>
 </div>
 
-<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<div id="toast" class="toast"></div>
 
 <script>
-/* Updated: removed "Copiar URL" button and improved "Abrir" button appearance.
-   Header unchanged. Rendering via DOM to be reliable when opened locally (file://).
+/* Full, working index.js logic:
+   - initialTools displayed reliably
+   - "Abrir" button only (improved styling)
+   - no copy/delete exposed
 */
 
 const STORAGE_KEY = 'bitools_links_v1';
@@ -128,16 +123,16 @@ const initialTools = [
 let tools = [];
 
 function uid(prefix='t'){ return prefix + '_' + Math.random().toString(36).slice(2,9); }
-function el(tag, attrs={}, ...children){ const e = document.createElement(tag); Object.entries(attrs||{}).forEach(([k,v])=>e.setAttribute(k,v)); children.forEach(c=>{ if(c===null||c===undefined) return; if(typeof c === 'string') e.appendChild(document.createTextNode(c)); else e.appendChild(c); }); return e; }
-function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2000); }
+function el(tag, attrs={}, ...children){ const e=document.createElement(tag); Object.entries(attrs||{}).forEach(([k,v])=>e.setAttribute(k,v)); children.forEach(c=>{ if(c===null||c===undefined) return; if(typeof c==='string') e.appendChild(document.createTextNode(c)); else e.appendChild(c); }); return e; }
+function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2000); }
 
 function load(){
   try{
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
     const merged = [];
     initialTools.forEach(init=>{
-      const foundIndex = saved.findIndex(s => s.id === init.id || s.url === init.url);
-      if(foundIndex>=0){ merged.push(saved[foundIndex]); saved.splice(foundIndex,1); } else merged.push(init);
+      const idx = saved.findIndex(s => s.id===init.id || s.url===init.url);
+      if(idx>=0){ merged.push(saved[idx]); saved.splice(idx,1); } else merged.push(init);
     });
     tools = merged.concat(saved);
   }catch(e){
@@ -149,7 +144,6 @@ function load(){
 function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(tools)); }
 
 let filterCat = 'Todas';
-let searchQ = '';
 
 function renderFilters(){
   const container = document.getElementById('filterPills');
@@ -173,24 +167,19 @@ function renderTools(){
   if(filterCat !== 'Todas') list = list.filter(t=>t.category === filterCat);
   const q = (document.getElementById('searchInput').value || '').toLowerCase();
   if(q) list = list.filter(t=>(t.name+' '+ (t.desc||'') + ' ' + (t.url||'')).toLowerCase().includes(q));
-  if(list.length === 0){ empty.style.display='block'; return; } else empty.style.display='none';
+  if(list.length === 0){ empty.style.display = 'block'; return; } else empty.style.display = 'none';
 
   list.forEach(t=>{
     const card = el('div',{class:'img-card'});
     const preview = el('div',{class:'img-preview'}, t.icon || '🔗');
-    const info = el('div',{class:'img-info'},
-      el('div',{class:'img-name', title: t.name}, t.name),
-      el('div',{class:'img-desc'}, t.desc || '')
-    );
+    const info = el('div',{class:'img-info'}, el('div',{class:'img-name', title: t.name}, t.name), el('div',{class:'img-desc'}, t.desc || ''));
 
-    // Improved "Abrir" button: larger, gradient, external-link svg aligned
     const svgOuter = document.createElement('span');
     svgOuter.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:8px;color:#0a0c5a"><path d="M18 13v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>`;
 
     const openBtn = el('button',{class:'btn pbi', title:'Abrir'});
-    openBtn.appendChild(svgOuter);
-    openBtn.appendChild(document.createTextNode('Abrir'));
-    openBtn.addEventListener('click', (ev)=>{ ev.stopPropagation(); window.open(t.url,'_blank'); showToast('Abriendo ' + t.name); });
+    openBtn.appendChild(svgOuter); openBtn.appendChild(document.createTextNode('Abrir'));
+    openBtn.addEventListener('click', (ev)=>{ ev.stopPropagation(); window.open(t.url,'_blank'); toast('Abriendo ' + t.name); });
 
     const actions = el('div',{class:'img-actions'}, openBtn);
 
@@ -203,48 +192,24 @@ function renderTools(){
   });
 }
 
-/* Modal: show only safe actions (Abrir). No copy, no delete */
 function openModal(id){
   const t = tools.find(x=>x.id===id); if(!t) return;
   const modal = document.getElementById('modal');
   const body = document.getElementById('modalBody');
   body.innerHTML = '';
   const title = el('h2',{}, t.name);
-  const row = el('div',{style:'display:flex;gap:12px;align-items:center;margin-top:8px'},
-    el('div',{style:'font-size:48px'}, t.icon || '🔗'),
-    el('div',{}, el('div',{class:'small'}, t.desc || ''), el('div',{}, el('a',{href:t.url, target:'_blank'}, t.url)))
-  );
-  const openBtn = el('button',{class:'btn pbi'}, 'Abrir');
-  openBtn.addEventListener('click', ()=> window.open(t.url,'_blank'));
+  const row = el('div',{style:'display:flex;gap:12px;align-items:center;margin-top:8px'}, el('div',{style:'font-size:48px'}, t.icon || '🔗'), el('div',{}, el('div',{class:'small'}, t.desc || ''), el('div',{}, el('a',{href:t.url, target:'_blank'}, t.url))));
+  const openBtn = el('button',{class:'btn pbi'}, 'Abrir'); openBtn.addEventListener('click', ()=> window.open(t.url,'_blank'));
   const btns = el('div',{style:'display:flex;gap:8px;justify-content:flex-end;margin-top:12px'}, openBtn);
-
-  body.appendChild(title);
-  body.appendChild(row);
-  body.appendChild(btns);
+  body.appendChild(title); body.appendChild(row); body.appendChild(btns);
   modal.classList.add('show');
 }
 function closeModal(){ document.getElementById('modal').classList.remove('show'); }
 
-/* Search handler */
 document.getElementById('searchInput').addEventListener('input', ()=> renderTools());
 
-/* Visit counter (CountAPI with local fallback) */
-const visitBadge = document.getElementById('visitBadge');
-function updateVisitBadge(val, src){ visitBadge.textContent = 'Visitas: ' + val + (src==='local' ? ' (local)' : ''); }
-async function incrCounter(){
-  const ns='gilvardperez', key='bitools_index', url=`https://api.countapi.xyz/hit/${encodeURIComponent(ns)}/${encodeURIComponent(key)}`;
-  try{
-    const res = await fetch(url, {cache:'no-store'}); if(!res.ok) throw new Error('countapi');
-    const data = await res.json(); if(typeof data.value!=='undefined'){ updateVisitBadge(data.value,'countapi'); localStorage.setItem('bitools_visits_mirror', String(data.value)); return; }
-    throw new Error('invalid');
-  }catch(e){
-    const lk='bitools_visits_local'; let n = Number(localStorage.getItem(lk)||0)+1; localStorage.setItem(lk, String(n)); updateVisitBadge(n,'local');
-  }
-}
-
-/* INIT */
+/* Init */
 load();
-incrCounter();
 window.addEventListener('resize', ()=> renderTools());
 </script>
 </body>
