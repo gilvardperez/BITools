@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>SVG → DAX Measure · Power BI (Fixes)</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --p:#f2c811;--pd:#d4a800;--pg:rgba(242,200,17,.12);
+  --b:#020442;--bl:#0a0c5a;
+  --bg:#e7e7ef;--card:#ffffff;--muted:#9496ae;
+  --mono:'JetBrains Mono',monospace;--ui:'Inter',sans-serif;
+  --radius:12px;
+}
+/* Reset & layout */
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);font-family:var(--ui);color:var(--b);overflow:hidden}
+
+/* HEADER — adjusted to match the other tools' header style */
+.hd{
+  background:linear-gradient(135deg,#1a1a30 0%,#0f0f1a 100%);
+  border-bottom:3px solid var(--p);
+  padding:14px 28px;
+  display:flex;
+  align-items:center;
+  gap:14px;
+  position:relative;
+  z-index:10;
+}
+.hd .logo-rect{
+  width:36px;height:36px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--p);border-radius:8px;font-weight:800;font-size:18px;
+}
+.hd h1{font-size:1.15rem;color:var(--p);font-weight:700;margin:0}
+.hd h1 span{color:var(--card);font-weight:300;margin-left:6px}
+.hd .hr{margin-left:auto;display:flex;align-items:center;gap:12px}
+.hd .cr{font-size:.78rem;color:var(--muted)}
+.hd .cr b{color:var(--card)}
+.hd a.sl{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);color:var(--card);text-decoration:none;transition:all .15s}
+.hd a.sl:hover{background:rgba(242,200,17,.18);transform:translateY(-2px);border-color:var(--p)}
+/* END header */
+
+/* Main */
+.main{height:calc(100vh - 54px);max-width:1280px;margin:0 auto;display:grid;grid-template-columns:1fr 380px;gap:18px;padding:18px;align-items:start;overflow:hidden}
+
+/* Left */
+.card{background:var(--card);border-radius:var(--radius);border:1px solid rgba(2,4,66,.06);padding:14px;display:flex;flex-direction:column;gap:12px;min-height:0}
+.left{display:flex;flex-direction:column;height:100%}
+.h2{font-size:1.02rem;color:var(--b);font-weight:800}
+.editor{flex:1;min-height:0;display:flex;flex-direction:column;gap:12px}
+.textarea{flex:1;min-height:0;border-radius:10px;border:1.5px dashed rgba(2,4,66,.06);background:linear-gradient(180deg,#fbfbfd,#f3f4f8);padding:12px;font-family:var(--mono);font-size:.88rem;color:var(--b);overflow:auto;resize:none}
+.controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:.78rem;color:var(--muted);font-weight:600}
+.field input{padding:8px 10px;border-radius:8px;border:1.5px solid rgba(2,4,66,.06);background:#fff;font-size:.9rem;color:var(--b);min-width:180px}
+
+/* Buttons */
+.btn{padding:8px 12px;border-radius:8px;border:1.5px solid rgba(2,4,66,.06);background:#fff;color:var(--b);font-weight:700;cursor:pointer;transition:all .12s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(2,4,66,.04)}
+.btn.pbi{background:var(--p);border-color:var(--pd);color:var(--b)}
+
+/* DAX output */
+.dax-section{height:210px;min-height:160px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.dax-title{font-weight:800;color:var(--b)}
+.dax-box{flex:1;background:linear-gradient(180deg, rgba(2,4,66,.95), rgba(2,4,66,.9));color:#c8cce0;border-radius:8px;padding:12px;font-family:var(--mono);font-size:.84rem;line-height:1.45;overflow:auto;border:2px solid rgba(242,200,17,.06)}
+
+/* Right */
+.right{display:flex;flex-direction:column;height:100%}
+.preview-card{display:flex;flex-direction:column;gap:10px;min-height:0}
+.preview-area{height:140px;border-radius:10px;border:1.5px dashed rgba(2,4,66,.06);background:linear-gradient(180deg,#f6f7fb,#f0f1f6);display:flex;align-items:center;justify-content:center;padding:12px;position:relative;overflow:hidden}
+.preview-area .label{position:absolute;left:12px;top:8px;font-weight:700;color:var(--muted)}
+.preview-inner{width:100%;height:100%;display:flex;align-items:center;justify-content:center}
+.preview-inner svg{max-width:100%;max-height:100%;height:auto;width:auto;display:block;margin:auto}
+
+/* Sims */
+.sims{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:10px;min-height:0;overflow:auto}
+.sim{background:var(--ll);border-radius:8px;padding:10px;border:1px solid rgba(2,4,66,.04);overflow:auto}
+.sim h4{margin:0 0 8px 0;color:var(--b);font-weight:800}
+.sim table{width:100%;border-collapse:collapse;font-size:.88rem}
+.sim th{background:var(--b);color:var(--p);padding:6px;text-align:left;font-size:.72rem}
+.sim td{padding:6px;border-bottom:1px solid rgba(2,4,66,.03);color:var(--b);vertical-align:middle}
+
+/* utilities */
+.row-between{display:flex;justify-content:space-between;align-items:center;margin-top:6px}
+.small{font-size:.82rem;color:var(--muted)}
+
+/* toast */
+.toast{position:fixed;right:18px;bottom:18px;background:var(--b);color:var(--p);padding:9px 18px;border-radius:8px;font-weight:700;opacity:0;transform:translateY(14px);transition:all .24s;z-index:999}
+.toast.show{opacity:1;transform:translateY(0)}
+</style>
+</head>
+<body>
+  <!-- Header adapted to match the other tools (same visual identity) -->
+  <header class="hd" role="banner" aria-label="SVG to DAX header">
+    <div class="logo-rect" aria-hidden>📦</div>
+    <h1><b>SVG → DAX</b> <span>Measure · Power BI</span></h1>
+
+    <div class="hr" role="navigation" aria-label="links">
+      <span class="cr">Designed by: <b>Gilvard Pérez</b></span>
+      <a class="sl" href="https://www.linkedin.com/in/gilvardperez/" target="_blank" rel="noopener noreferrer" title="LinkedIn">
+        <svg viewBox="0 0 24 24" fill="#0A66C2" width="16" height="16" aria-hidden><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.14 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452z"/></svg>
+      </a>
+      <a class="sl" href="https://www.skool.com/club-power-bi-9524/about" target="_blank" rel="noopener noreferrer" title="Club Power BI">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="var(--p)" aria-hidden><rect width="24" height="24" rx="4"/></svg>
+        <span>Club Power BI</span>
+      </a>
+    </div>
+  </header>
+
+  <main class="main" role="main">
+    <section class="card left" aria-labelledby="svg-title">
+      <div id="svg-title" class="h2">📥 Pega tu código SVG</div>
+
+      <div class="editor">
+        <textarea id="svgInput" class="textarea" spellcheck="false" placeholder='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">...</svg>'></textarea>
+
+        <div class="controls" role="region" aria-label="Opciones">
+          <div class="field">
+            <label>Nombre medida</label>
+            <input id="measureName" type="text" value="SVG_Measure" />
+          </div>
+
+          <div class="util" role="toolbar" aria-label="acciones">
+            <button id="pasteBtn" class="btn" title="Pegar desde portapapeles">📋 Pegar</button>
+            <button id="cleanBtn" class="btn" title="Limpiar SVG">🧹 Limpiar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="dax-section">
+        <div class="dax-title">📐 Medida DAX generada</div>
+        <div id="daxOut" class="dax-box">// La medida DAX aparecerá automáticamente al pegar o escribir el SVG</div>
+
+        <div class="row-between">
+          <div class="small">Formato: legible · Encoding: UTF‑8</div>
+          <div class="util">
+            <button id="copyDaxBtn" class="btn" title="Copiar DAX">📋 Copiar DAX</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <aside class="preview-card" aria-labelledby="preview-title">
+      <div class="preview-header">
+        <div id="preview-title" style="font-weight:800;color:var(--b)">👁️ Preview</div>
+        <div class="small">Paleta: <strong style="color:var(--p)">amarillo</strong> · <strong style="color:#fff">blanco</strong> · <strong style="color:var(--b)">azul</strong></div>
+      </div>
+
+      <div id="previewArea" class="preview-area" aria-live="polite">
+        <div class="label">SVG Preview</div>
+        <div id="previewEmpty" class="preview-empty">Pega un SVG para ver la preview</div>
+        <div id="previewRender" class="preview-inner" style="display:none"></div>
+      </div>
+
+      <div class="sims">
+        <div class="sim" aria-label="Tabla">
+          <h4>📋 Tabla</h4>
+          <table class="sim" id="simTable"><thead><tr><th>Producto</th><th>Estado</th><th>Ventas</th><th>Meta</th></tr></thead>
+            <tbody id="simTableBody">
+              <tr><td>Laptop Pro</td><td id="simIcon1">—</td><td>$45,200</td><td>$40,000</td></tr>
+              <tr><td>Monitor 4K</td><td id="simIcon2">—</td><td>$32,100</td><td>$35,000</td></tr>
+              <tr><td>Teclado MX</td><td id="simIcon3">—</td><td>$12,800</td><td>$15,000</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="sim" aria-label="Tarjeta KPI">
+          <h4>🔢 Tarjeta KPI</h4>
+          <div style="display:flex;gap:12px;align-items:center">
+            <div id="kpiIcon" style="background:#fff;color:var(--b);padding:8px;border-radius:8px;font-weight:800">—</div>
+            <div><div style="font-size:1.2rem;font-weight:800">$89,500</div><div class="small">Ventas Totales Q4</div></div>
+          </div>
+        </div>
+
+        <div class="sim" style="grid-column:span 2" aria-label="Matriz">
+          <h4>🔣 Matriz</h4>
+          <table class="sim"><thead><tr><th>Región</th><th>T1</th><th>T2</th><th>T3</th><th>T4</th></tr></thead>
+            <tbody id="simMatrixBody">
+              <tr><td>Norte</td><td id="m1">—</td><td id="m2">—</td><td id="m3">—</td><td id="m4">—</td></tr>
+              <tr><td>Sur</td><td id="m5">—</td><td id="m6">—</td><td id="m7">—</td><td id="m8">—</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* Fixes: Clean button and preview-in-card update reliably.
+   - Auto-generate DAX on SVG input (debounced)
+   - Live update DAX when measure name changes
+   - Clean forces regenerate and preview update
+   - Preview for cards uses real <img>.src assignment for cache reliability
+*/
+
+document.addEventListener('DOMContentLoaded', ()=> {
+  const svgInput = document.getElementById('svgInput');
+  const measureName = document.getElementById('measureName');
+  const pasteBtn = document.getElementById('pasteBtn');
+  const cleanBtn = document.getElementById('cleanBtn');
+  const copyDaxBtn = document.getElementById('copyDaxBtn');
+  const previewRender = document.getElementById('previewRender');
+  const previewEmpty = document.getElementById('previewEmpty');
+  const daxOut = document.getElementById('daxOut');
+
+  let debounceTimer = null;
+  let currentSvg = '';
+  let currentUri = '';
+
+  function toast(msg){
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'),2200);
+  }
+
+  function sanitize(svgText){
+    if(!svgText) return '';
+    let s = svgText.replace(/^\s+|\s+$/g,'').replace(/<\?xml[\s\S]*?\?>/gi,'').replace(/<!DOCTYPE[\s\S]*?>/gi,'');
+    try{
+      const doc = new DOMParser().parseFromString(s,'image/svg+xml');
+      const svgEl = doc.querySelector('svg');
+      if(!svgEl) return '';
+      doc.querySelectorAll('script,style').forEach(n=>n.parentNode && n.parentNode.removeChild(n));
+      svgEl.querySelectorAll('*').forEach(node=>{
+        [...node.attributes].forEach(attr=>{
+          if(/^on/i.test(attr.name)) node.removeAttribute(attr.name);
+        });
+      });
+      svgEl.removeAttribute('width'); svgEl.removeAttribute('height');
+      if(!svgEl.hasAttribute('viewBox')) svgEl.setAttribute('viewBox','0 0 100 100');
+      svgEl.setAttribute('preserveAspectRatio','xMidYMid meet');
+      return new XMLSerializer().serializeToString(svgEl);
+    }catch(e){
+      s = s.replace(/<script[\s\S]*?<\/script>/gi,'').replace(/\son\w+="[^"]*"/gi,'');
+      s = s.replace(/\swidth=["'][^"']*["']/gi,'').replace(/\sheight=["'][^"']*["']/gi,'');
+      if(!/viewBox/.test(s)) s = s.replace('<svg','<svg viewBox="0 0 100 100"');
+      return s;
+    }
+  }
+
+  function buildDataUri(svg){
+    const compact = svg.replace(/"/g,"'").replace(/#/g,'%23').replace(/\s+/g,' ').trim();
+    return 'data:image/svg+xml;utf8,' + compact;
+  }
+
+  function generateDaxText(svg){
+    const nameVal = (measureName.value || 'SVG_Measure').replace(/\s+/g,'_');
+    const compact = svg.replace(/"/g,"'").replace(/#/g,'%23').replace(/\s+/g,' ').trim();
+    return `${nameVal} =\nVAR _prefix = "data:image/svg+xml;utf8,"\nVAR _svg = "${compact}"\nRETURN\n    _prefix & _svg`;
+  }
+
+  function updateCardIcons(uri){
+    // Update card icons by setting src on actual <img> elements.
+    // If img elements don't exist yet, create them.
+    const setImg = (id, size) => {
+      const el = document.getElementById(id);
+      if(!el) return;
+      if(!uri){ el.innerHTML = '—'; return; }
+      const child = el.querySelector('img');
+      if(child){ child.src = uri; child.style.maxWidth = (size+'px'); child.style.maxHeight = (size+'px'); }
+      else {
+        const img = document.createElement('img');
+        img.src = uri;
+        img.style.maxWidth = size + 'px';
+        img.style.maxHeight = size + 'px';
+        img.alt = 'icon';
+        el.innerHTML = '';
+        el.appendChild(img);
+      }
+    };
+    setImg('simIcon1', 28); setImg('simIcon2', 28); setImg('simIcon3', 28);
+    setImg('kpiIcon', 28);
+    ['m1','m2','m3','m4','m5','m6','m7','m8'].forEach(id=>setImg(id, 18));
+  }
+
+  function renderPreview(svg, uri){
+    previewRender.innerHTML = `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center">${svg}</div>`;
+    previewRender.style.display = 'flex';
+    previewEmpty.style.display = 'none';
+    updateCardIcons(uri);
+  }
+
+  function regenerate(){
+    const raw = svgInput.value.trim();
+    if(!raw || !raw.includes('<svg')){ daxOut.textContent='// Pega un SVG válido para generar la medida...'; previewRender.innerHTML=''; previewRender.style.display='none'; previewEmpty.style.display='block'; updateCardIcons(null); return; }
+    currentSvg = sanitize(raw);
+    currentUri = buildDataUri(currentSvg);
+    daxOut.textContent = generateDaxText(currentSvg);
+    renderPreview(currentSvg, currentUri);
+  }
+
+  // Debounced input on svg area:
+  svgInput.addEventListener('input', ()=>{
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(()=>{ regenerate(); }, 300);
+  });
+
+  // Live update when measureName changes (only DAX text)
+  measureName.addEventListener('input', ()=>{
+    const raw = svgInput.value.trim();
+    if(!raw || !raw.includes('<svg')) return;
+    currentSvg = sanitize(raw);
+    daxOut.textContent = generateDaxText(currentSvg);
+  });
+
+  // Paste
+  pasteBtn.addEventListener('click', async ()=>{
+    try{
+      const text = await navigator.clipboard.readText();
+      if(!text){ toast('Portapapeles vacío'); return; }
+      svgInput.value = text;
+      svgInput.dispatchEvent(new Event('input'));
+      toast('📋 SVG pegado desde portapapeles');
+    }catch(e){ toast('No fue posible leer portapapeles'); }
+  });
+
+  // CLEAN: remove prologs and attributes and REGENERATE
+  cleanBtn.addEventListener('click', ()=>{
+    svgInput.value = svgInput.value.replace(/<!--[\s\S]*?-->/g,'').replace(/<\?xml[\s\S]*?\?>/g,'').replace(/<!DOCTYPE[\s\S]*?>/gi,'').trim();
+    svgInput.value = svgInput.value.replace(/\son\w+="[^"]*"/gi,'').replace(/\swidth=["'][^"']*["']/gi,'').replace(/\sheight=["'][^"']*["']/gi,'');
+    regenerate();
+    toast('🧹 SVG limpiado');
+  });
+
+  // Copy DAX
+  copyDaxBtn.addEventListener('click', ()=>{
+    const txt = daxOut.textContent.trim();
+    if(!txt){ toast('Nada para copiar'); return; }
+    navigator.clipboard.writeText(txt).then(()=>toast('✅ Medida DAX copiada'));
+  });
+
+  // Keyboard shortcut: Ctrl/Cmd+G force regenerate
+  document.addEventListener('keydown', e=>{
+    if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='g'){ e.preventDefault(); regenerate(); toast('Generando...'); }
+  });
+
+  // initialize with a sample so user sees behavior
+  svgInput.value = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" fill="none" stroke="#03ca23" stroke-width="2.5" stroke-linecap="square" stroke-linejoin="round"/></svg>`;
+  svgInput.dispatchEvent(new Event('input'));
+});
+</script>
+</body>
+</html>
