@@ -1,21 +1,20 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BITools · Repositorio de herramientas para desarrolladores BI</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PBIX Image Extractor · Power BI</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
 :root{--p:#f2c811;--pd:#d4a800;--pg:rgba(242,200,17,.12);--b:#020442;--bl:#0a0c5a;--l:#d7d8e4;--ll:#e3e4ed;--ld:#c4c5d4;--c:#e8e9f2;--ch:#eeeff6;--t:#1a1c3a;--tm:#3d3f5c;--tf:#9496ae;--f:'Inter',sans-serif;--m:'JetBrains Mono',monospace}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:var(--f);background:var(--l);color:var(--t);min-height:100vh;display:flex;flex-direction:column}
 
-/* Header con icono y título */
-.hd{background:var(--b);padding:0 24px;height:64px;display:flex;align-items:center;gap:12px;position:relative;flex-shrink:0}
+/* HEADER (kept identical early block, .lm background changed to grey) */
+.hd{background:var(--b);padding:0 24px;height:54px;display:flex;align-items:center;gap:12px;position:relative;flex-shrink:0}
 .hd::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--p)}
-.hd .lm{width:40px;height:40px;background:var(--p);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px}
-.hd h1{font-size:1.02rem;color:#fff;font-weight:700;margin-left:6px}
-.hd h1 b{color:var(--p)}
+.hd .lm{width:34px;height:34px;background:#9aa0a6;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px}
+.hd h1{font-size:1.1rem;color:#fff;font-weight:600}.hd h1 b{color:var(--p)}
 .hd .hr{margin-left:auto;display:flex;align-items:center;gap:10px}
 .hd .cr{font-size:.72rem;color:rgba(255,255,255,.45)}.hd .cr b{color:#fff}
 .hd a.sl{display:flex;align-items:center;justify-content:center;height:28px;border-radius:6px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);text-decoration:none;transition:all .2s}
@@ -25,30 +24,31 @@ body{font-family:var(--f);background:var(--l);color:var(--t);min-height:100vh;di
 .hd a.sl.with-text{padding:0 10px;gap:5px;font-size:.68rem;font-weight:600;color:var(--p)}
 .hd a.sl.with-text span{white-space:nowrap}
 
+/* LAYOUT */
 .main{flex:1;max-width:1100px;width:100%;margin:0 auto;padding:24px;display:flex;flex-direction:column;gap:16px;overflow-y:auto}
 
-/* filter + grid */
 .filter-bar{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.filter-bar label{font-size:.74rem;font-weight:600;color:var(--tm)}
 .fpill{padding:4px 10px;border:1.5px solid var(--ld);border-radius:14px;background:var(--ll);color:var(--tf);font-size:.7rem;font-weight:600;cursor:pointer;font-family:var(--f)}
-.fpill:hover{border-color:var(--p);color:var(--b)}
 .fpill.a{background:var(--b);border-color:var(--b);color:var(--p)}
-.search-sm{padding:4px 10px;border:1.5px solid var(--ld);border-radius:6px;background:var(--ll);color:var(--t);font-size:.76rem;font-family:var(--f);outline:none;width:220px;margin-left:auto}
+.search-sm{padding:4px 10px;border:1.5px solid var(--ld);border-radius:6px;background:var(--ll);color:var(--t);font-size:.76rem;font-family:var(--f);outline:none;width:260px;margin-left:auto}
 .search-sm:focus{border-color:var(--p)}
 
-.img-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.img-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
 .img-card{background:var(--c);border:1.5px solid var(--ld);border-radius:10px;overflow:hidden;transition:all .12s;cursor:default;display:flex;flex-direction:column}
 .img-card:hover{border-color:var(--p);box-shadow:0 4px 16px rgba(0,0,0,.08);transform:translateY(-2px)}
-.img-preview{height:100px;background:var(--ll);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;font-size:56px}
-.img-preview img{max-width:100%;max-height:100%;object-fit:contain}
-.img-badge{display:none !important;}
-.img-info{padding:10px;border-top:1px solid var(--ld);flex:1;display:flex;flex-direction:column;gap:6px}
-.img-info .img-name{font-size:.92rem;font-weight:700;color:var(--t);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.img-info .img-desc{font-size:.78rem;color:var(--tf);flex:1}
-.img-meta{font-size:.72rem;color:var(--tf);display:flex;gap:8px;align-items:center;flex-wrap:wrap;visibility:hidden} /* ocultamos meta (URL) */
-.img-actions{display:flex;gap:6px;padding:10px;border-top:1px solid var(--ld);background:transparent}
+.img-preview{height:110px;background:var(--ll);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;font-size:56px}
+.img-info{padding:12px;border-top:1px solid var(--ld);flex:1;display:flex;flex-direction:column;gap:8px}
+.img-info .img-name{font-size:1rem;font-weight:700;color:var(--t);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.img-info .img-desc{font-size:.86rem;color:var(--tf);line-height:1.2}
+.img-actions{display:flex;gap:8px;padding:10px;border-top:1px solid var(--ld);background:transparent;justify-content:flex-start}
 
-/* modal kept for admin/editing */
+/* Improved "Abrir" button style */
+.btn{padding:8px 12px;border:1.5px solid var(--ld);border-radius:8px;background:#fff;color:var(--t);font-size:.86rem;font-weight:700;cursor:pointer;font-family:var(--f);display:inline-flex;align-items:center;gap:8px;transition:all .12s}
+.btn:hover{border-color:var(--p);color:var(--b)}
+.btn.pbi{background:linear-gradient(180deg,var(--p),var(--pd));border:none;color:var(--b);font-weight:800;box-shadow:0 6px 18px rgba(242,200,17,.12)}
+.btn.pbi:hover{transform:translateY(-2px)}
+
+/* modal */
 .lightbox{display:none;position:fixed;inset:0;background:rgba(2,4,66,.85);z-index:1000;align-items:center;justify-content:center;flex-direction:column;gap:12px;padding:20px}
 .lightbox.show{display:flex}
 .lightbox .modal{background:#fff;border-radius:10px;padding:18px;max-width:760px;width:100%;color:var(--t);position:relative}
@@ -58,256 +58,194 @@ body{font-family:var(--f);background:var(--l);color:var(--t);min-height:100vh;di
 .toast{position:fixed;bottom:18px;right:18px;background:var(--b);color:var(--p);padding:9px 20px;border-radius:8px;font-weight:700;font-size:.82rem;opacity:0;transform:translateY(14px);transition:all .3s;z-index:1001;box-shadow:0 3px 12px rgba(2,4,66,.3);border:1px solid rgba(242,200,17,.2)}
 .toast.show{opacity:1;transform:translateY(0)}
 
-.add-form{display:flex;flex-direction:column;gap:8px}
-.add-form label{font-size:.78rem;color:var(--tm);font-weight:600}
-.add-form input,.add-form select,.add-form textarea{padding:8px;border-radius:8px;border:1.5px solid var(--ld);background:var(--ll);outline:none;font-family:var(--f);font-size:.9rem}
-.add-form textarea{min-height:80px;resize:vertical}
+.code-box{background:#0e1530;color:#e6eaf6;border-radius:8px;padding:12px;font-family:var(--m);font-size:.85rem;overflow:auto;min-height:120px}
 .small{font-size:.78rem;color:var(--tf)}
-.empty-state{display:none;text-align:center;padding:40px;color:var(--tf)}
-.empty-state.show{display:block}
+.empty-state{display:block;text-align:center;padding:40px;color:var(--tf)}
 .empty-state .es-icon{font-size:3rem;opacity:.3;margin-bottom:8px}
 
-::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--l)}::-webkit-scrollbar-thumb{background:var(--ld);border-radius:3px}
+::-webkit-scrollbar{width:8px}::-webkit-scrollbar-track{background:var(--l)}::-webkit-scrollbar-thumb{background:var(--ld);border-radius:4px}
 </style>
 </head>
 <body>
 
-<!-- Encabezado con icono y título -->
+<!-- HEADER -->
 <div class="hd">
-  <div class="lm">🧰</div>
+  <div class="lm" aria-hidden>🧰</div>
   <h1><b>BITools</b> — Repositorio de herramientas para desarrolladores BI</h1>
-  <div class="hr">
+  <div class="hr" role="navigation" aria-label="links">
     <span class="cr">By: <b>Gilvard Pérez</b></span>
-    <a class="sl icon-only" href="https://www.linkedin.com/in/gilvardperez/" target="_blank" title="LinkedIn">
-      <svg viewBox="0 0 24 24" fill="#0A66C2"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.14 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+    <a class="sl icon-only" href="https://www.linkedin.com/in/gilvardperez/" target="_blank" rel="noopener noreferrer" title="LinkedIn">
+      <svg viewBox="0 0 24 24" fill="#0A66C2" width="16" height="16" aria-hidden><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.14 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452z"/></svg>
     </a>
-    <a class="sl with-text" href="https://www.skool.com/club-power-bi-9524/about" target="_blank" title="Club Power BI">
-      <svg viewBox="0 0 24 24" width="15" height="15" fill="var(--p)"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
-      <span>Club Power BI</span>
+    <a class="sl with-text" href="https://www.skool.com/club-power-bi-9524/about" target="_blank" rel="noopener noreferrer" title="Comunidad gratuita en Skool">
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="var(--p)" aria-hidden><rect width="24" height="24" rx="4"/></svg>
+      <span>Comunidad gratuita en Skool</span>
     </a>
+
+    <span id="visitBadge" class="small" aria-live="polite" style="background:rgba(255,255,255,0.06);padding:6px 10px;border-radius:8px;color:#fff">Visitas: —</span>
   </div>
 </div>
 
-<div class="main">
-  <div class="filter-bar" id="filterBar">
-    <label>Filtrar:</label>
-    <div id="filterPills"></div>
-    <input class="search-sm" id="searchInput" placeholder="🔍 Buscar por nombre o URL..." >
+<!-- MAIN -->
+<main class="main" role="main">
+  <div class="filter-bar" id="filterBar" style="margin-bottom:6px">
+    <label style="font-weight:700">Filtrar:</label>
+    <div id="filterPills" style="display:flex;gap:8px;margin-left:8px"></div>
+    <input class="search-sm" id="searchInput" placeholder="🔍 Buscar por nombre o URL..." />
   </div>
 
-  <div class="img-grid" id="toolsGrid"></div>
+  <div id="toolsGrid" class="img-grid" aria-live="polite"></div>
 
-  <div class="empty-state show" id="emptyState">
+  <div id="emptyState" class="empty-state" style="display:none">
     <div class="es-icon">🔍</div>
     <p>Aquí aparecerán las herramientas que vayas indicando.</p>
   </div>
-</div>
+</main>
 
-<!-- Modal para ver/editar/agregar (se conserva) -->
-<div class="lightbox" id="modal" onclick="closeModal(event)">
-  <div class="modal" id="modalContent" onclick="event.stopPropagation()">
-    <button class="lb-close" onclick="closeModal()">✕</button>
+<!-- Modal (only safe actions) -->
+<div class="lightbox" id="modal" onclick="if(event.target===this) closeModal()">
+  <div class="modal" id="modalContent">
+    <button class="lb-close" onclick="closeModal()" title="Cerrar">✕</button>
     <div id="modalBody"></div>
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
 
 <script>
-/* BITools - cliente (localStorage)
-   initialTools contiene las herramientas iniciales en el orden deseado.
-   Se asegura que las iniciales estén al inicio manteniendo el orden (Palette, Image, SVG).
+/* Updated: removed "Copiar URL" button and improved "Abrir" button appearance.
+   Header unchanged. Rendering via DOM to be reliable when opened locally (file://).
 */
-const STORAGE_KEY = 'bitools_links_v1';
 
-// Herramientas iniciales (orden importante)
+const STORAGE_KEY = 'bitools_links_v1';
 const initialTools = [
-  {
-    id: 't_powerbi_palette_v2',
-    name: 'Power BI Palette Extractor v2',
-    url: 'https://gilvardperez.github.io/BITools/Palette_extractor.html',
-    icon: '🎨',
-    desc: 'HErramienta para extraer paletas de colores partiendo de una imagen',
-    category: 'Herramienta'
-  },
-  {
-    id: 't_image_extractor',
-    name: 'Image Extractor',
-    url: 'https://gilvardperez.github.io/BITools/Image_extractor.html',
-    icon: '🖼️',
-    desc: 'Herramienta para extraer imágenes desde archivos o imágenes',
-    category: 'Herramienta'
-  },
-  {
-    id: 't_svg_to_dax',
-    name: 'SVG → DAX Measure',
-    url: 'https://gilvardperez.github.io/BITools/SVG_to_DAX.html',
-    icon: '📐',
-    desc: 'Interfaz para convertir SVG en medidas DAX reutilizables para Power BI',
-    category: 'Herramienta'
-  }
+  { id:'t_skool_community', name:'Comunidad gratuita en Skool', url:'https://www.skool.com/club-power-bi-9524/about', icon:'👥', desc:'Únete a la comunidad gratuita en Skool para Power BI', category:'Comunidad' },
+  { id:'t_powerbi_palette_v2', name:'Power BI Palette Extractor v2', url:'https://gilvardperez.github.io/BITools/Palette_extractor.html', icon:'🎨', desc:'Herramienta para extraer paletas de colores partiendo de una imagen', category:'Herramienta' },
+  { id:'t_image_extractor', name:'Image Extractor', url:'https://gilvardperez.github.io/BITools/Image_extractor.html', icon:'🖼️', desc:'Herramienta para extraer imágenes desde archivos o imágenes', category:'Herramienta' },
+  { id:'t_svg_to_dax', name:'SVG → DAX Measure', url:'https://gilvardperez.github.io/BITools/SVG_to_DAX.html', icon:'📐', desc:'Interfaz para convertir SVG en medidas DAX reutilizables para Power BI', category:'Herramienta' }
 ];
 
-let tools = initialTools.slice(); // por defecto carga las herramientas iniciales
-let filterCat = 'Todas';
-let searchQ = '';
+let tools = [];
 
-function genId(){return 't_'+Math.random().toString(36).slice(2,9)}
+function uid(prefix='t'){ return prefix + '_' + Math.random().toString(36).slice(2,9); }
+function el(tag, attrs={}, ...children){ const e = document.createElement(tag); Object.entries(attrs||{}).forEach(([k,v])=>e.setAttribute(k,v)); children.forEach(c=>{ if(c===null||c===undefined) return; if(typeof c === 'string') e.appendChild(document.createTextNode(c)); else e.appendChild(c); }); return e; }
+function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2000); }
 
 function load(){
-  const raw = localStorage.getItem(STORAGE_KEY);
-  if(raw){
-    try{
-      let parsed = JSON.parse(raw);
-      if(!Array.isArray(parsed)) parsed = [];
-      // Insertamos/movemos las initialTools al inicio en el orden definido
-      for(let i=initialTools.length-1;i>=0;i--){
-        const init = initialTools[i];
-        const existsIndex = parsed.findIndex(t => (t.id && t.id === init.id) || (t.url && t.url === init.url));
-        if(existsIndex === -1){
-          parsed.unshift(init);
-        } else {
-          const [tool] = parsed.splice(existsIndex,1);
-          parsed.unshift(tool);
-        }
-      }
-      tools = parsed;
-    }catch(e){
-      tools = initialTools.slice();
-    }
-  } else {
-    // Sin localStorage, ya están en initialTools — guardamos para persistencia
+  try{
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    const merged = [];
+    initialTools.forEach(init=>{
+      const foundIndex = saved.findIndex(s => s.id === init.id || s.url === init.url);
+      if(foundIndex>=0){ merged.push(saved[foundIndex]); saved.splice(foundIndex,1); } else merged.push(init);
+    });
+    tools = merged.concat(saved);
+  }catch(e){
     tools = initialTools.slice();
-    save();
   }
   renderFilters();
   renderTools();
 }
+function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(tools)); }
 
-function save(){
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(tools));
-}
+let filterCat = 'Todas';
+let searchQ = '';
 
 function renderFilters(){
-  const byCat = {};
-  tools.forEach(t=>byCat[t.category]=(byCat[t.category]||0)+1);
-  let h = '<button class="fpill'+(filterCat==='Todas'?' a':'')+'" onclick="filterCat=\'Todas\';renderFilters();renderTools()">Todas ('+tools.length+')</button>';
-  Object.entries(byCat).forEach(([c,n])=>{
-    h += '<button class="fpill'+(filterCat===c?' a':'')+'" onclick="filterCat=\''+escapeAttr(c)+'\';renderFilters();renderTools()">'+escapeHtml(c)+' ('+n+')</button>';
+  const container = document.getElementById('filterPills');
+  container.innerHTML = '';
+  const counts = tools.reduce((acc,t)=>{ acc[t.category] = (acc[t.category]||0)+1; return acc; }, {});
+  const allBtn = el('button',{class:'fpill a'}, `Todas (${tools.length})`);
+  allBtn.addEventListener('click', ()=>{ filterCat='Todas'; renderFilters(); renderTools(); });
+  container.appendChild(allBtn);
+  Object.entries(counts).forEach(([cat,n])=>{
+    const btn = el('button',{class:'fpill'}, `${cat} (${n})`);
+    btn.addEventListener('click', ()=>{ filterCat = cat; renderFilters(); renderTools(); });
+    container.appendChild(btn);
   });
-  document.getElementById('filterPills').innerHTML = h;
-  document.getElementById('searchInput').value = searchQ;
-  document.getElementById('searchInput').oninput = e => { searchQ = e.target.value.toLowerCase(); renderTools(); };
 }
 
 function renderTools(){
-  let f = tools.slice();
-  if(filterCat !== 'Todas') f = f.filter(t=>t.category===filterCat);
-  if(searchQ) f = f.filter(t => (t.name+t.url+t.desc+t.category).toLowerCase().includes(searchQ));
   const grid = document.getElementById('toolsGrid');
-  if(!f.length){grid.innerHTML=''; showEmpty(true); return}
-  showEmpty(false);
-  let h = '';
-  f.forEach(t=>{
-    h += '<div class="img-card" id="'+escapeAttr(t.id)+'">'
-      +'<div class="img-preview">'+escapeHtml(t.icon || '🔗')+'</div>'
-      +'<div class="img-info"><div class="img-name" title="'+escapeAttr(t.name)+'">'+escapeHtml(t.name)+'</div>'
-      +'<div class="img-desc">'+escapeHtml(t.desc||'')+'</div>'
-      // img-meta kept but hidden (no URL shown)
-      +'<div class="img-meta"><span class="small"></span></div></div>'
-      +'<div class="img-actions">'
-      // Solo botón Abrir visible en la grid
-      +'<button class="btn pbi" onclick="event.stopPropagation();openLink(\''+escapeAttr(t.id)+'\')">🔗 Abrir</button>'
-      +'</div></div>';
+  const empty = document.getElementById('emptyState');
+  grid.innerHTML = '';
+  let list = tools.slice();
+  if(filterCat !== 'Todas') list = list.filter(t=>t.category === filterCat);
+  const q = (document.getElementById('searchInput').value || '').toLowerCase();
+  if(q) list = list.filter(t=>(t.name+' '+ (t.desc||'') + ' ' + (t.url||'')).toLowerCase().includes(q));
+  if(list.length === 0){ empty.style.display='block'; return; } else empty.style.display='none';
+
+  list.forEach(t=>{
+    const card = el('div',{class:'img-card'});
+    const preview = el('div',{class:'img-preview'}, t.icon || '🔗');
+    const info = el('div',{class:'img-info'},
+      el('div',{class:'img-name', title: t.name}, t.name),
+      el('div',{class:'img-desc'}, t.desc || '')
+    );
+
+    // Improved "Abrir" button: larger, gradient, external-link svg aligned
+    const svgOuter = document.createElement('span');
+    svgOuter.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:8px;color:#0a0c5a"><path d="M18 13v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>`;
+
+    const openBtn = el('button',{class:'btn pbi', title:'Abrir'});
+    openBtn.appendChild(svgOuter);
+    openBtn.appendChild(document.createTextNode('Abrir'));
+    openBtn.addEventListener('click', (ev)=>{ ev.stopPropagation(); window.open(t.url,'_blank'); showToast('Abriendo ' + t.name); });
+
+    const actions = el('div',{class:'img-actions'}, openBtn);
+
+    card.addEventListener('click', ()=> openModal(t.id));
+
+    card.appendChild(preview);
+    card.appendChild(info);
+    card.appendChild(actions);
+    grid.appendChild(card);
   });
-  grid.innerHTML = h;
 }
 
-/* UI helpers */
-function showEmpty(v){
-  const e=document.getElementById('emptyState'); v?e.classList.add('show'):e.classList.remove('show');
-}
-
-function toast(msg){const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2400)}
-
-/* Actions */
-function openLink(id){
-  const t = tools.find(x=>x.id===id); if(!t) return;
-  window.open(t.url,'_blank');
-  toast('Abriendo '+t.name);
-}
-
-/* edición/copia/modal mantenidos para futura reactivación */
-function copyLink(id){
-  const t = tools.find(x=>x.id===id); if(!t) return;
-  navigator.clipboard.writeText(t.url).then(()=>toast('✅ URL copiada'));
-}
+/* Modal: show only safe actions (Abrir). No copy, no delete */
 function openModal(id){
   const t = tools.find(x=>x.id===id); if(!t) return;
   const modal = document.getElementById('modal');
   const body = document.getElementById('modalBody');
-  body.innerHTML = ''
-    +'<h2 style="margin-bottom:8px">'+escapeHtml(t.name)+'</h2>'
-    +'<div style="display:flex;gap:10px;align-items:center;margin-bottom:10px">'
-    +'<div style="font-size:48px">'+escapeHtml(t.icon||'🔗')+'</div>'
-    +'<div style="flex:1"><div class="small">'+escapeHtml(t.desc||'')+'</div><div style="margin-top:6px"><a href="'+escapeAttr(t.url)+'" target="_blank">'+escapeHtml(t.url)+'</a></div></div></div>'
-    +'<div style="display:flex;gap:8px;justify-content:flex-end">'
-    +'<button class="btn" onclick="event.stopPropagation();editTool(\''+escapeAttr(t.id)+'\')">✏️ Editar</button>'
-    +'<button class="btn" onclick="event.stopPropagation();deleteTool(\''+escapeAttr(t.id)+'\')">🗑️ Eliminar</button>'
-    +'<button class="btn pbi" onclick="event.stopPropagation();openLink(\''+escapeAttr(t.id)+'\')">🔗 Abrir</button>'
-    +'<button class="btn blue" onclick="event.stopPropagation();copyLink(\''+escapeAttr(t.id)+'\')">📋 Copiar</button>'
-    +'</div>';
+  body.innerHTML = '';
+  const title = el('h2',{}, t.name);
+  const row = el('div',{style:'display:flex;gap:12px;align-items:center;margin-top:8px'},
+    el('div',{style:'font-size:48px'}, t.icon || '🔗'),
+    el('div',{}, el('div',{class:'small'}, t.desc || ''), el('div',{}, el('a',{href:t.url, target:'_blank'}, t.url)))
+  );
+  const openBtn = el('button',{class:'btn pbi'}, 'Abrir');
+  openBtn.addEventListener('click', ()=> window.open(t.url,'_blank'));
+  const btns = el('div',{style:'display:flex;gap:8px;justify-content:flex-end;margin-top:12px'}, openBtn);
+
+  body.appendChild(title);
+  body.appendChild(row);
+  body.appendChild(btns);
   modal.classList.add('show');
 }
-function closeModal(e){
-  if(!e || (e && e.target===document.getElementById('modal'))) document.getElementById('modal').classList.remove('show');
-  renderFilters();
-  renderTools();
-}
-function openAddForm(prefill){
-  const modal = document.getElementById('modal');
-  const body = document.getElementById('modalBody');
-  const d = prefill || {name:'',url:'',icon:'🔗',desc:'',category:''};
-  body.innerHTML = ''
-    +'<h2 style="margin-bottom:8px">'+(prefill? 'Editar herramienta':'Agregar herramienta')+'</h2>'
-    +'<form class="add-form" onsubmit="event.preventDefault();saveFromForm(this)">'+
-    '<label>Nombre</label><input name="name" value="'+escapeAttr(d.name)+'" required />'+
-    '<label>URL</label><input name="url" value="'+escapeAttr(d.url)+'" required />'+
-    '<label>Icono (emoji o texto)</label><input name="icon" value="'+escapeAttr(d.icon||'🔗')+'" />'+
-    '<label>Categoría</label><input name="category" value="'+escapeAttr(d.category||'')+'" />'+
-    '<label>Descripción</label><textarea name="desc">'+escapeAttr(d.desc)+'</textarea>'+
-    '<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">'
-    +'<button class="btn" type="button" onclick="closeModal()">Cancelar</button>'
-    +'<button class="btn pbi" type="submit">Guardar</button>'
-    +'</div></form>';
-  modal.classList.add('show');
-}
-function saveFromForm(form){
-  const fm = form;
-  const name = fm.name.value.trim(); const url = fm.url.value.trim(); const icon = fm.icon.value.trim() || '🔗';
-  const desc = fm.desc.value.trim(); const category = fm.category.value.trim() || 'Sin categoría';
-  if(!name || !url){toast('Nombre y URL son requeridos'); return}
-  const newTool = {id:genId(),name,url,icon,desc,category};
-  tools.unshift(newTool);
-  save(); renderFilters(); renderTools(); closeModal(); toast('✅ Guardado');
-}
-function editTool(id){
-  const t = tools.find(x=>x.id===id); if(!t) return;
-  openAddForm(t);
-}
-function deleteTool(id){
-  if(!confirm('¿Eliminar esta herramienta?')) return;
-  tools = tools.filter(t=>t.id!==id);
-  save(); renderFilters(); renderTools(); closeModal(); toast('🗑️ Eliminado');
+function closeModal(){ document.getElementById('modal').classList.remove('show'); }
+
+/* Search handler */
+document.getElementById('searchInput').addEventListener('input', ()=> renderTools());
+
+/* Visit counter (CountAPI with local fallback) */
+const visitBadge = document.getElementById('visitBadge');
+function updateVisitBadge(val, src){ visitBadge.textContent = 'Visitas: ' + val + (src==='local' ? ' (local)' : ''); }
+async function incrCounter(){
+  const ns='gilvardperez', key='bitools_index', url=`https://api.countapi.xyz/hit/${encodeURIComponent(ns)}/${encodeURIComponent(key)}`;
+  try{
+    const res = await fetch(url, {cache:'no-store'}); if(!res.ok) throw new Error('countapi');
+    const data = await res.json(); if(typeof data.value!=='undefined'){ updateVisitBadge(data.value,'countapi'); localStorage.setItem('bitools_visits_mirror', String(data.value)); return; }
+    throw new Error('invalid');
+  }catch(e){
+    const lk='bitools_visits_local'; let n = Number(localStorage.getItem(lk)||0)+1; localStorage.setItem(lk, String(n)); updateVisitBadge(n,'local');
+  }
 }
 
-/* util */
-function escapeHtml(s){ if(!s) return ''; return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function escapeAttr(s){ if(!s) return ''; return String(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
-
-/* init */
+/* INIT */
 load();
+incrCounter();
+window.addEventListener('resize', ()=> renderTools());
 </script>
-
 </body>
 </html>
