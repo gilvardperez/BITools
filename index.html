@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BITools · Repositorio de herramientas BI</title>
+<title>BITools · Repositorio de herramientas para desarrolladores BI</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
 :root{--p:#f2c811;--pd:#d4a800;--pg:rgba(242,200,17,.12);--b:#020442;--bl:#0a0c5a;--l:#d7d8e4;--ll:#e3e4ed;--ld:#c4c5d4;--c:#e8e9f2;--ch:#eeeff6;--t:#1a1c3a;--tm:#3d3f5c;--tf:#9496ae;--f:'Inter',sans-serif;--m:'JetBrains Mono',monospace}
@@ -27,17 +27,9 @@ body{font-family:var(--f);background:var(--l);color:var(--t);min-height:100vh;di
 
 .main{flex:1;max-width:1100px;width:100%;margin:0 auto;padding:24px;display:flex;flex-direction:column;gap:16px;overflow-y:auto}
 
-/* sección intro: solo subtítulo */
-.section-intro{background:var(--c);border:1px solid var(--ld);border-radius:12px;padding:18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-.section-intro .title{font-size:1.05rem;font-weight:700;color:var(--b)}
-.section-intro .sub{font-size:.86rem;color:var(--tf)}
-.btn{padding:6px 14px;border:1.5px solid var(--ld);border-radius:6px;background:var(--ll);color:var(--tm);font-size:.74rem;font-weight:600;cursor:pointer;font-family:var(--f);display:inline-flex;align-items:center;gap:4px;transition:all .12s;white-space:nowrap}
-.btn:hover{border-color:var(--p);color:var(--b);background:var(--pg)}
-.btn.pbi{background:var(--p);border-color:var(--pd);color:var(--b);font-weight:700}
-.btn.pbi:hover{background:var(--pd)}
-.btn.blue{background:var(--b);border-color:var(--b);color:var(--p)}
-.btn.blue:hover{background:var(--bl)}
+/* Se eliminó la sección introductoria solicitada */
 
+/* filter + grid */
 .filter-bar{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .filter-bar label{font-size:.74rem;font-weight:600;color:var(--tm)}
 .fpill{padding:4px 10px;border:1.5px solid var(--ld);border-radius:14px;background:var(--ll);color:var(--tf);font-size:.7rem;font-weight:600;cursor:pointer;font-family:var(--f)}
@@ -51,16 +43,14 @@ body{font-family:var(--f);background:var(--l);color:var(--t);min-height:100vh;di
 .img-card:hover{border-color:var(--p);box-shadow:0 4px 16px rgba(0,0,0,.08);transform:translateY(-2px)}
 .img-preview{height:100px;background:var(--ll);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;font-size:56px}
 .img-preview img{max-width:100%;max-height:100%;object-fit:contain}
-.img-badge{ /* badge eliminado: ocultamos por CSS */
-  display:none !important;
-}
+.img-badge{display:none !important;}
 .img-info{padding:10px;border-top:1px solid var(--ld);flex:1;display:flex;flex-direction:column;gap:6px}
 .img-info .img-name{font-size:.92rem;font-weight:700;color:var(--t);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .img-info .img-desc{font-size:.78rem;color:var(--tf);flex:1}
 .img-meta{font-size:.72rem;color:var(--tf);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .img-actions{display:flex;gap:6px;padding:10px;border-top:1px solid var(--ld);background:transparent}
 
-/* Mantener modal (aunque ya no mostramos botón Detalle en las tarjetas) */
+/* modal kept for admin/editing (not visible directly) */
 .lightbox{display:none;position:fixed;inset:0;background:rgba(2,4,66,.85);z-index:1000;align-items:center;justify-content:center;flex-direction:column;gap:12px;padding:20px}
 .lightbox.show{display:flex}
 .lightbox .modal{background:#fff;border-radius:10px;padding:18px;max-width:760px;width:100%;color:var(--t);position:relative}
@@ -101,12 +91,7 @@ body{font-family:var(--f);background:var(--l);color:var(--t);min-height:100vh;di
 </div>
 
 <div class="main">
-  <div class="section-intro">
-    <div style="font-size:28px">🧰</div>
-    <div>
-      <div class="sub">Aquí abajo se agregarán las distintas herramientas que me vayas citando.</div>
-    </div>
-  </div>
+  <!-- removed intro banner as requested -->
 
   <div class="filter-bar" id="filterBar">
     <label>Filtrar:</label>
@@ -122,7 +107,7 @@ body{font-family:var(--f);background:var(--l);color:var(--t);min-height:100vh;di
   </div>
 </div>
 
-<!-- Modal para ver/editar/agregar (se conserva, pero no se expone en la tarjeta por defecto) -->
+<!-- Modal para ver/editar/agregar (se conserva) -->
 <div class="lightbox" id="modal" onclick="closeModal(event)">
   <div class="modal" id="modalContent" onclick="event.stopPropagation()">
     <button class="lb-close" onclick="closeModal()">✕</button>
@@ -134,24 +119,31 @@ body{font-family:var(--f);background:var(--l);color:var(--t);min-height:100vh;di
 
 <script>
 /* BITools - cliente (localStorage)
-   initialTools contiene la herramienta publicada en /Palette_extractor.html
-   load() asegura que la herramienta esté al inicio incluso si ya hay datos en localStorage.
+   initialTools contiene las herramientas iniciales en el orden deseado.
 */
 const STORAGE_KEY = 'bitools_links_v1';
 
-// Herramienta agregada (primera) — URL publicada en GitHub Pages
+// Herramientas iniciales (Palette + Image)
 const initialTools = [
   {
     id: 't_powerbi_palette_v2',
-    name: 'Power BI Palette Extractor v2',
+    name: 'Power BI Palette Extractor',
     url: 'https://gilvardperez.github.io/BITools/Palette_extractor.html',
     icon: '🎨',
-    desc: 'Herramienta para extraer paletas de colores partiendo de una imagen',
+    desc: 'HErramienta para extraer paletas de colores partiendo de una imagen',
+    category: 'Herramienta'
+  },
+  {
+    id: 't_image_extractor',
+    name: 'Image Extractor',
+    url: 'https://gilvardperez.github.io/BITools/Image_extractor.html',
+    icon: '🖼️',
+    desc: 'Herramienta para extraer imágenes desde archivos o imágenes',
     category: 'Herramienta'
   }
 ];
 
-let tools = initialTools.slice(); // por defecto carga la herramienta como la primera
+let tools = initialTools.slice();
 let filterCat = 'Todas';
 let searchQ = '';
 
@@ -161,28 +153,23 @@ function load(){
   const raw = localStorage.getItem(STORAGE_KEY);
   if(raw){
     try{
-      const parsed = JSON.parse(raw);
-      if(Array.isArray(parsed)){
-        // Si no existe la herramienta inicial, añadirla al principio.
-        const initial = initialTools[0];
-        const existsIndex = parsed.findIndex(t => (t.id && t.id === initial.id) || (t.url && t.url === initial.url));
+      let parsed = JSON.parse(raw);
+      if(!Array.isArray(parsed)) parsed = [];
+      for(let i=initialTools.length-1;i>=0;i--){
+        const init = initialTools[i];
+        const existsIndex = parsed.findIndex(t => (t.id && t.id === init.id) || (t.url && t.url === init.url));
         if(existsIndex === -1){
-          // insert at start
-          parsed.unshift(initial);
-        } else if(existsIndex > 0){
-          // move existing to first position
+          parsed.unshift(init);
+        } else {
           const [tool] = parsed.splice(existsIndex,1);
           parsed.unshift(tool);
         }
-        tools = parsed;
-      } else {
-        tools = initialTools.slice();
       }
+      tools = parsed;
     }catch(e){
       tools = initialTools.slice();
     }
   } else {
-    // Sin localStorage, ya están en initialTools — guardamos para persistencia
     tools = initialTools.slice();
     save();
   }
@@ -190,9 +177,7 @@ function load(){
   renderTools();
 }
 
-function save(){
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(tools));
-}
+function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(tools)); }
 
 function renderFilters(){
   const byCat = {};
@@ -221,106 +206,29 @@ function renderTools(){
       +'<div class="img-desc">'+escapeHtml(t.desc||'')+'</div>'
       +'<div class="img-meta"><span class="small">'+escapeHtml(t.url)+'</span></div></div>'
       +'<div class="img-actions">'
-      // Solo botón Abrir visible en la grid (según tu petición)
       +'<button class="btn pbi" onclick="event.stopPropagation();openLink(\''+escapeAttr(t.id)+'\')">🔗 Abrir</button>'
       +'</div></div>';
   });
   grid.innerHTML = h;
 }
 
-/* UI helpers */
-function showEmpty(v){
-  const e=document.getElementById('emptyState'); v?e.classList.add('show'):e.classList.remove('show');
-}
-
+function showEmpty(v){ const e=document.getElementById('emptyState'); v?e.classList.add('show'):e.classList.remove('show'); }
 function toast(msg){const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2400)}
 
-/* Actions */
-function openLink(id){
-  const t = tools.find(x=>x.id===id); if(!t) return;
-  // Abrir en nueva pestaña
-  window.open(t.url,'_blank');
-  toast('Abriendo '+t.name);
-}
+function openLink(id){ const t = tools.find(x=>x.id===id); if(!t) return; window.open(t.url,'_blank'); toast('Abriendo '+t.name); }
 
-/* Nota: las otras funciones (copiar, editar, modal) se mantienen en el código
-   por si deseas reactivar la edición más adelante; no están expuestas en las tarjetas. */
+/* edición/copia/modal conservados para futura reactivación */
+function copyLink(id){ const t = tools.find(x=>x.id===id); if(!t) return; navigator.clipboard.writeText(t.url).then(()=>toast('✅ URL copiada')); }
+function openModal(id){ const t = tools.find(x=>x.id===id); if(!t) return; const modal = document.getElementById('modal'); const body = document.getElementById('modalBody'); body.innerHTML = '' +'<h2 style="margin-bottom:8px">'+escapeHtml(t.name)+'</h2>' +'<div style="display:flex;gap:10px;align-items:center;margin-bottom:10px">' +'<div style="font-size:48px">'+escapeHtml(t.icon||'🔗')+'</div>' +'<div style="flex:1"><div class="small">'+escapeHtml(t.desc||'')+'</div><div style="margin-top:6px"><a href="'+escapeAttr(t.url)+'" target="_blank">'+escapeHtml(t.url)+'</a></div></div></div>' +'<div style="display:flex;gap:8px;justify-content:flex-end">' +'<button class="btn" onclick="event.stopPropagation();editTool(\''+escapeAttr(t.id)+'\')">✏️ Editar</button>' +'<button class="btn" onclick="event.stopPropagation();deleteTool(\''+escapeAttr(t.id)+'\')">🗑️ Eliminar</button>' +'<button class="btn pbi" onclick="event.stopPropagation();openLink(\''+escapeAttr(t.id)+'\')">🔗 Abrir</button>' +'<button class="btn blue" onclick="event.stopPropagation();copyLink(\''+escapeAttr(t.id)+'\')">📋 Copiar</button>' +'</div>'; modal.classList.add('show'); }
+function closeModal(e){ if(!e || (e && e.target===document.getElementById('modal'))) document.getElementById('modal').classList.remove('show'); renderFilters(); renderTools(); }
+function openAddForm(prefill){ const modal = document.getElementById('modal'); const body = document.getElementById('modalBody'); const d = prefill || {name:'',url:'',icon:'🔗',desc:'',category:''}; body.innerHTML = '' +'<h2 style="margin-bottom:8px">'+(prefill? 'Editar herramienta':'Agregar herramienta')+'</h2>' +'<form class="add-form" onsubmit="event.preventDefault();saveFromForm(this)">' +'<label>Nombre</label><input name="name" value="'+escapeAttr(d.name)+'" required />' +'<label>URL</label><input name="url" value="'+escapeAttr(d.url)+'" required />' +'<label>Icono (emoji o texto)</label><input name="icon" value="'+escapeAttr(d.icon||'🔗')+'" />' +'<label>Categoría</label><input name="category" value="'+escapeAttr(d.category||'')+'" />' +'<label>Descripción</label><textarea name="desc">'+escapeAttr(d.desc)+'</textarea>' +'<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">' +'<button class="btn" type="button" onclick="closeModal()">Cancelar</button>' +'<button class="btn pbi" type="submit">Guardar</button>' +'</div></form>'; modal.classList.add('show'); }
+function saveFromForm(form){ const fm = form; const name = fm.name.value.trim(); const url = fm.url.value.trim(); const icon = fm.icon.value.trim() || '🔗'; const desc = fm.desc.value.trim(); const category = fm.category.value.trim() || 'Sin categoría'; if(!name || !url){toast('Nombre y URL son requeridos'); return} const newTool = {id:genId(),name,url,icon,desc,category}; tools.unshift(newTool); save(); renderFilters(); renderTools(); closeModal(); toast('✅ Guardado'); }
+function editTool(id){ const t = tools.find(x=>x.id===id); if(!t) return; openAddForm(t); }
+function deleteTool(id){ if(!confirm('¿Eliminar esta herramienta?')) return; tools = tools.filter(t=>t.id!==id); save(); renderFilters(); renderTools(); closeModal(); toast('🗑️ Eliminado'); }
 
-function copyLink(id){
-  const t = tools.find(x=>x.id===id); if(!t) return;
-  navigator.clipboard.writeText(t.url).then(()=>toast('✅ URL copiada'));
-}
-
-function openModal(id){
-  const t = tools.find(x=>x.id===id); if(!t) return;
-  const modal = document.getElementById('modal');
-  const body = document.getElementById('modalBody');
-  body.innerHTML = ''
-    +'<h2 style="margin-bottom:8px">'+escapeHtml(t.name)+'</h2>'
-    +'<div style="display:flex;gap:10px;align-items:center;margin-bottom:10px">'
-    +'<div style="font-size:48px">'+escapeHtml(t.icon||'🔗')+'</div>'
-    +'<div style="flex:1"><div class="small">'+escapeHtml(t.desc||'')+'</div><div style="margin-top:6px"><a href="'+escapeAttr(t.url)+'" target="_blank">'+escapeHtml(t.url)+'</a></div></div></div>'
-    +'<div style="display:flex;gap:8px;justify-content:flex-end">'
-    +'<button class="btn" onclick="event.stopPropagation();editTool(\''+escapeAttr(t.id)+'\')">✏️ Editar</button>'
-    +'<button class="btn" onclick="event.stopPropagation();deleteTool(\''+escapeAttr(t.id)+'\')">🗑️ Eliminar</button>'
-    +'<button class="btn pbi" onclick="event.stopPropagation();openLink(\''+escapeAttr(t.id)+'\')">🔗 Abrir</button>'
-    +'<button class="btn blue" onclick="event.stopPropagation();copyLink(\''+escapeAttr(t.id)+'\')">📋 Copiar</button>'
-    +'</div>';
-  modal.classList.add('show');
-}
-
-function closeModal(e){
-  if(!e || (e && e.target===document.getElementById('modal'))) document.getElementById('modal').classList.remove('show');
-  renderFilters();
-  renderTools();
-}
-
-/* Agregar / editar (el modal existe pero no hay botón visible en UI) */
-function openAddForm(prefill){
-  const modal = document.getElementById('modal');
-  const body = document.getElementById('modalBody');
-  const d = prefill || {name:'',url:'',icon:'🔗',desc:'',category:''};
-  body.innerHTML = ''
-    +'<h2 style="margin-bottom:8px">'+(prefill? 'Editar herramienta':'Agregar herramienta')+'</h2>'
-    +'<form class="add-form" onsubmit="event.preventDefault();saveFromForm(this)">'+
-    '<label>Nombre</label><input name="name" value="'+escapeAttr(d.name)+'" required />'+
-    '<label>URL</label><input name="url" value="'+escapeAttr(d.url)+'" required />'+
-    '<label>Icono (emoji o texto)</label><input name="icon" value="'+escapeAttr(d.icon||'🔗')+'" />'+
-    '<label>Categoría</label><input name="category" value="'+escapeAttr(d.category||'')+'" />'+
-    '<label>Descripción</label><textarea name="desc">'+escapeAttr(d.desc)+'</textarea>'+
-    '<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">'
-    +'<button class="btn" type="button" onclick="closeModal()">Cancelar</button>'
-    +'<button class="btn pbi" type="submit">Guardar</button>'
-    +'</div></form>';
-  modal.classList.add('show');
-}
-
-function saveFromForm(form){
-  const fm = form;
-  const name = fm.name.value.trim(); const url = fm.url.value.trim(); const icon = fm.icon.value.trim() || '🔗';
-  const desc = fm.desc.value.trim(); const category = fm.category.value.trim() || 'Sin categoría';
-  if(!name || !url){toast('Nombre y URL son requeridos'); return}
-  const newTool = {id:genId(),name,url,icon,desc,category};
-  tools.unshift(newTool);
-  save(); renderFilters(); renderTools(); closeModal(); toast('✅ Guardado');
-}
-
-function editTool(id){
-  const t = tools.find(x=>x.id===id); if(!t) return;
-  openAddForm(t);
-}
-
-function deleteTool(id){
-  if(!confirm('¿Eliminar esta herramienta?')) return;
-  tools = tools.filter(t=>t.id!==id);
-  save(); renderFilters(); renderTools(); closeModal(); toast('🗑️ Eliminado');
-}
-
-/* util */
 function escapeHtml(s){ if(!s) return ''; return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function escapeAttr(s){ if(!s) return ''; return String(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 
-/* init */
 load();
 </script>
 
