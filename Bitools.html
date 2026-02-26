@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BITools · Repositorio de herramientas BI</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+:root{--p:#f2c811;--pd:#d4a800;--pg:rgba(242,200,17,.12);--b:#020442;--bl:#0a0c5a;--l:#d7d8e4;--ll:#e3e4ed;--ld:#c4c5d4;--c:#e8e9f2;--ch:#eeeff6;--t:#1a1c3a;--tm:#3d3f5c;--tf:#9496ae;--f:'Inter',sans-serif;--m:'JetBrains Mono',monospace}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--f);background:var(--l);color:var(--t);min-height:100vh;display:flex;flex-direction:column}
+
+/* Header: icon de caja de herramientas y título arriba */
+.hd{background:var(--b);padding:0 24px;height:64px;display:flex;align-items:center;gap:12px;position:relative;flex-shrink:0}
+.hd::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--p)}
+.hd .lm{width:40px;height:40px;background:var(--p);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.hd h1{font-size:1.02rem;color:#fff;font-weight:700;margin-left:6px}
+.hd h1 b{color:var(--p)}
+.hd .hr{margin-left:auto;display:flex;align-items:center;gap:10px}
+.hd .cr{font-size:.72rem;color:rgba(255,255,255,.45)}.hd .cr b{color:#fff}
+.hd a.sl{display:flex;align-items:center;justify-content:center;height:28px;border-radius:6px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);text-decoration:none;transition:all .2s}
+.hd a.sl:hover{background:rgba(242,200,17,.2);border-color:var(--p);transform:translateY(-1px)}
+.hd a.sl svg{width:15px;height:15px}
+.hd a.sl.icon-only{width:28px;justify-content:center}
+.hd a.sl.with-text{padding:0 10px;gap:5px;font-size:.68rem;font-weight:600;color:var(--p)}
+.hd a.sl.with-text span{white-space:nowrap}
+
+.main{flex:1;max-width:1100px;width:100%;margin:0 auto;padding:24px;display:flex;flex-direction:column;gap:16px;overflow-y:auto}
+
+/* sección intro: solo subtítulo (título ya en el header) */
+.section-intro{background:var(--c);border:1px solid var(--ld);border-radius:12px;padding:18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.section-intro .title{font-size:1.05rem;font-weight:700;color:var(--b)}
+.section-intro .sub{font-size:.86rem;color:var(--tf)}
+.btn{padding:6px 14px;border:1.5px solid var(--ld);border-radius:6px;background:var(--ll);color:var(--tm);font-size:.74rem;font-weight:600;cursor:pointer;font-family:var(--f);display:inline-flex;align-items:center;gap:4px;transition:all .12s;white-space:nowrap}
+.btn:hover{border-color:var(--p);color:var(--b);background:var(--pg)}
+.btn.pbi{background:var(--p);border-color:var(--pd);color:var(--b);font-weight:700}
+.btn.pbi:hover{background:var(--pd)}
+.btn.blue{background:var(--b);border-color:var(--b);color:var(--p)}
+.btn.blue:hover{background:var(--bl)}
+
+.filter-bar{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.filter-bar label{font-size:.74rem;font-weight:600;color:var(--tm)}
+.fpill{padding:4px 10px;border:1.5px solid var(--ld);border-radius:14px;background:var(--ll);color:var(--tf);font-size:.7rem;font-weight:600;cursor:pointer;font-family:var(--f)}
+.fpill:hover{border-color:var(--p);color:var(--b)}
+.fpill.a{background:var(--b);border-color:var(--b);color:var(--p)}
+.search-sm{padding:4px 10px;border:1.5px solid var(--ld);border-radius:6px;background:var(--ll);color:var(--t);font-size:.76rem;font-family:var(--f);outline:none;width:220px;margin-left:auto}
+.search-sm:focus{border-color:var(--p)}
+
+.img-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.img-card{background:var(--c);border:1.5px solid var(--ld);border-radius:10px;overflow:hidden;transition:all .12s;cursor:default;display:flex;flex-direction:column}
+.img-card:hover{border-color:var(--p);box-shadow:0 4px 16px rgba(0,0,0,.08);transform:translateY(-2px)}
+.img-preview{height:100px;background:var(--ll);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;font-size:56px}
+.img-preview img{max-width:100%;max-height:100%;object-fit:contain}
+.img-badge{position:absolute;top:8px;right:8px;background:var(--b);color:var(--p);font-size:.6rem;font-weight:700;padding:4px 6px;border-radius:6px;text-transform:uppercase}
+.img-info{padding:10px;border-top:1px solid var(--ld);flex:1;display:flex;flex-direction:column;gap:6px}
+.img-info .img-name{font-size:.92rem;font-weight:700;color:var(--t);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.img-info .img-desc{font-size:.78rem;color:var(--tf);flex:1}
+.img-meta{font-size:.72rem;color:var(--tf);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.img-actions{display:flex;gap:6px;padding:10px;border-top:1px solid var(--ld);background:transparent}
+
+.lightbox{display:none;position:fixed;inset:0;background:rgba(2,4,66,.85);z-index:1000;align-items:center;justify-content:center;flex-direction:column;gap:12px;padding:20px}
+.lightbox.show{display:flex}
+.lightbox .modal{background:#fff;border-radius:10px;padding:18px;max-width:760px;width:100%;color:var(--t);position:relative}
+.lightbox .lb-close{position:absolute;top:10px;right:10px;background:rgba(2,4,66,.05);border:1px solid rgba(2,4,66,.06);color:var(--t);width:36px;height:36px;border-radius:8px;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.lightbox .lb-close:hover{background:rgba(242,200,17,.12)}
+
+.toast{position:fixed;bottom:18px;right:18px;background:var(--b);color:var(--p);padding:9px 20px;border-radius:8px;font-weight:700;font-size:.82rem;opacity:0;transform:translateY(14px);transition:all .3s;z-index:1001;box-shadow:0 3px 12px rgba(2,4,66,.3);border:1px solid rgba(242,200,17,.2)}
+.toast.show{opacity:1;transform:translateY(0)}
+
+.add-form{display:flex;flex-direction:column;gap:8px}
+.add-form label{font-size:.78rem;color:var(--tm);font-weight:600}
+.add-form input,.add-form select,.add-form textarea{padding:8px;border-radius:8px;border:1.5px solid var(--ld);background:var(--ll);outline:none;font-family:var(--f);font-size:.9rem}
+.add-form textarea{min-height:80px;resize:vertical}
+.small{font-size:.78rem;color:var(--tf)}
+.empty-state{display:none;text-align:center;padding:40px;color:var(--tf)}
+.empty-state.show{display:block}
+.empty-state .es-icon{font-size:3rem;opacity:.3;margin-bottom:8px}
+
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--l)}::-webkit-scrollbar-thumb{background:var(--ld);border-radius:3px}
+</style>
+</head>
+<body>
+
+<!-- Encabezado con icono de caja de herramientas y título (moved up) -->
+<div class="hd">
+  <div class="lm">🧰</div>
+  <h1><b>BITools</b> — Repositorio de herramientas para desarrolladores BI</h1>
+  <div class="hr">
+    <span class="cr">By: <b>Gilvard Pérez</b></span>
+    <a class="sl icon-only" href="https://www.linkedin.com/in/gilvardperez/" target="_blank" title="LinkedIn">
+      <svg viewBox="0 0 24 24" fill="#0A66C2"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.14 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+    </a>
+    <a class="sl with-text" href="https://www.skool.com/club-power-bi-9524/about" target="_blank" title="Club Power BI">
+      <svg viewBox="0 0 24 24" width="15" height="15" fill="var(--p)"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+      <span>Club Power BI</span>
+    </a>
+  </div>
+</div>
+
+<div class="main">
+  <div class="section-intro">
+    <div style="font-size:28px">🧰</div>
+    <div>
+      <!-- título trasladado al header --> 
+      <div class="sub">Aquí abajo se agregarán las distintas herramientas que me vayas citando.</div>
+    </div>
+    <!-- botón "Agregar herramienta" eliminado según tu indicación -->
+  </div>
+
+  <div class="filter-bar" id="filterBar">
+    <label>Filtrar:</label>
+    <div id="filterPills"></div>
+    <input class="search-sm" id="searchInput" placeholder="🔍 Buscar por nombre o URL..." >
+  </div>
+
+  <div class="img-grid" id="toolsGrid"></div>
+
+  <div class="empty-state show" id="emptyState">
+    <div class="es-icon">🔍</div>
+    <p>Aquí aparecerán las herramientas que vayas indicando.</p>
+  </div>
+</div>
+
+<!-- Modal para ver/editar/agregar (permanece disponible por si quieres que lo active desde UI más adelante) -->
+<div class="lightbox" id="modal" onclick="closeModal(event)">
+  <div class="modal" id="modalContent" onclick="event.stopPropagation()">
+    <button class="lb-close" onclick="closeModal()">✕</button>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* BITools - cliente (localStorage)
+   Lista inicial VACÍA (según lo pediste). Título y icono en header.
+*/
+const STORAGE_KEY = 'bitools_links_v1';
+let tools = []; // vacío a propósito
+let filterCat = 'Todas';
+let searchQ = '';
+
+function genId(){return 't_'+Math.random().toString(36).slice(2,9)}
+
+function load(){
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if(raw){try{tools=JSON.parse(raw);}catch(e){tools=[]}}
+  if(!Array.isArray(tools)) tools = [];
+  renderFilters();
+  renderTools();
+}
+
+function save(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(tools));
+}
+
+function renderFilters(){
+  const byCat = {};
+  tools.forEach(t=>byCat[t.category]=(byCat[t.category]||0)+1);
+  let h = '<button class="fpill'+(filterCat==='Todas'?' a':'')+'" onclick="filterCat=\'Todas\';renderFilters();renderTools()">Todas ('+tools.length+')</button>';
+  Object.entries(byCat).forEach(([c,n])=>{
+    h += '<button class="fpill'+(filterCat===c?' a':'')+'" onclick="filterCat=\''+escapeAttr(c)+'\';renderFilters();renderTools()">'+escapeHtml(c)+' ('+n+')</button>';
+  });
+  document.getElementById('filterPills').innerHTML = h;
+  document.getElementById('searchInput').value = searchQ;
+  document.getElementById('searchInput').oninput = e => { searchQ = e.target.value.toLowerCase(); renderTools(); };
+}
+
+function renderTools(){
+  let f = tools.slice();
+  if(filterCat !== 'Todas') f = f.filter(t=>t.category===filterCat);
+  if(searchQ) f = f.filter(t => (t.name+t.url+t.desc+t.category).toLowerCase().includes(searchQ));
+  const grid = document.getElementById('toolsGrid');
+  if(!f.length){grid.innerHTML=''; showEmpty(true); return}
+  showEmpty(false);
+  let h = '';
+  f.forEach(t=>{
+    h += '<div class="img-card" id="'+escapeAttr(t.id)+'">'
+      +'<div class="img-preview">'+escapeHtml(t.icon || '🔗')+'<span class="img-badge">'+escapeHtml(t.category||'')+'</span></div>'
+      +'<div class="img-info"><div class="img-name" title="'+escapeAttr(t.name)+'">'+escapeHtml(t.name)+'</div>'
+      +'<div class="img-desc">'+escapeHtml(t.desc||'')+'</div>'
+      +'<div class="img-meta"><span class="small">'+escapeHtml(t.url)+'</span></div></div>'
+      +'<div class="img-actions">'
+      +'<button class="btn pbi" onclick="event.stopPropagation();openLink(\''+escapeAttr(t.id)+'\')">🔗 Abrir</button>'
+      +'<button class="btn" onclick="event.stopPropagation();copyLink(\''+escapeAttr(t.id)+'\')">📋 Copiar</button>'
+      +'<button class="btn blue" onclick="event.stopPropagation();openModal(\''+escapeAttr(t.id)+'\')">ℹ️ Detalle</button>'
+      +'</div></div>';
+  });
+  grid.innerHTML = h;
+}
+
+/* UI helpers */
+function showEmpty(v){
+  const e=document.getElementById('emptyState'); v?e.classList.add('show'):e.classList.remove('show');
+}
+function toast(msg){const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2400)}
+
+/* Actions */
+function openLink(id){
+  const t = tools.find(x=>x.id===id); if(!t) return;
+  window.open(t.url,'_blank');
+  toast('Abriendo '+t.name);
+}
+function copyLink(id){
+  const t = tools.find(x=>x.id===id); if(!t) return;
+  navigator.clipboard.writeText(t.url).then(()=>toast('✅ URL copiada'));
+}
+function openModal(id){
+  const t = tools.find(x=>x.id===id); if(!t) return;
+  const modal = document.getElementById('modal');
+  const body = document.getElementById('modalBody');
+  body.innerHTML = ''
+    +'<h2 style="margin-bottom:8px">'+escapeHtml(t.name)+'</h2>'
+    +'<div style="display:flex;gap:10px;align-items:center;margin-bottom:10px">'
+    +'<div style="font-size:48px">'+escapeHtml(t.icon||'🔗')+'</div>'
+    +'<div style="flex:1"><div class="small">'+escapeHtml(t.desc||'')+'</div><div style="margin-top:6px"><a href="'+escapeAttr(t.url)+'" target="_blank">'+escapeHtml(t.url)+'</a></div></div></div>'
+    +'<div style="display:flex;gap:8px;justify-content:flex-end">'
+    +'<button class="btn" onclick="event.stopPropagation();editTool(\''+escapeAttr(t.id)+'\')">✏️ Editar</button>'
+    +'<button class="btn" onclick="event.stopPropagation();deleteTool(\''+escapeAttr(t.id)+'\')">🗑️ Eliminar</button>'
+    +'<button class="btn pbi" onclick="event.stopPropagation();openLink(\''+escapeAttr(t.id)+'\')">🔗 Abrir</button>'
+    +'<button class="btn blue" onclick="event.stopPropagation();copyLink(\''+escapeAttr(t.id)+'\')">📋 Copiar</button>'
+    +'</div>';
+  modal.classList.add('show');
+}
+function closeModal(e){
+  if(!e || (e && e.target===document.getElementById('modal'))) document.getElementById('modal').classList.remove('show');
+  renderFilters();
+  renderTools();
+}
+
+/* Agregar / editar (el modal sigue existiendo si quieres reactivar el botón en el futuro) */
+function openAddForm(prefill){
+  const modal = document.getElementById('modal');
+  const body = document.getElementById('modalBody');
+  const d = prefill || {name:'',url:'',icon:'🔗',desc:'',category:''};
+  body.innerHTML = ''
+    +'<h2 style="margin-bottom:8px">'+(prefill? 'Editar herramienta':'Agregar herramienta')+'</h2>'
+    +'<form class="add-form" onsubmit="event.preventDefault();saveFromForm(this)">'+
+    '<label>Nombre</label><input name="name" value="'+escapeAttr(d.name)+'" required />'+
+    '<label>URL</label><input name="url" value="'+escapeAttr(d.url)+'" required />'+
+    '<label>Icono (emoji o texto)</label><input name="icon" value="'+escapeAttr(d.icon||'🔗')+'" />'+
+    '<label>Categoría</label><input name="category" value="'+escapeAttr(d.category||'')+'" />'+
+    '<label>Descripción</label><textarea name="desc">'+escapeAttr(d.desc)+'</textarea>'+
+    '<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">'
+    +'<button class="btn" type="button" onclick="closeModal()">Cancelar</button>'
+    +'<button class="btn pbi" type="submit">Guardar</button>'
+    +'</div></form>';
+  modal.classList.add('show');
+}
+
+function saveFromForm(form){
+  const fm = form;
+  const name = fm.name.value.trim(); const url = fm.url.value.trim(); const icon = fm.icon.value.trim() || '🔗';
+  const desc = fm.desc.value.trim(); const category = fm.category.value.trim() || 'Sin categoría';
+  if(!name || !url){toast('Nombre y URL son requeridos'); return}
+  const newTool = {id:genId(),name,url,icon,desc,category};
+  tools.unshift(newTool);
+  save(); renderFilters(); renderTools(); closeModal(); toast('✅ Guardado');
+}
+function editTool(id){
+  const t = tools.find(x=>x.id===id); if(!t) return;
+  openAddForm(t);
+}
+function deleteTool(id){
+  if(!confirm('¿Eliminar esta herramienta?')) return;
+  tools = tools.filter(t=>t.id!==id);
+  save(); renderFilters(); renderTools(); closeModal(); toast('🗑️ Eliminado');
+}
+
+/* util */
+function escapeHtml(s){ if(!s) return ''; return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escapeAttr(s){ if(!s) return ''; return String(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
+/* init */
+load();
+</script>
+
+</body>
+</html>
